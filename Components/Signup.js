@@ -75,7 +75,7 @@ class Signup extends React.Component {
 
 	_showSendButton() {
 		const { conf_pwd, user_pwd, user_email, user_pseudo} = this.state
-		const formatPwd = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/
+		const formatPwd = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?a-zA-Z0-9]{6,21}$/
 		const formatEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 		const formatPseudo = /^[a-zA-Z0-9][a-zA-Z0-9-_]{4,14}[a-zA-Z0-9]$/
 		const error = () => {
