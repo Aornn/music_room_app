@@ -3,7 +3,6 @@ import {
 	SafeAreaView,
 	View,
 	TextInput,
-	Button,
 	StyleSheet,
 	Text,
 	ActivityIndicator,
@@ -11,7 +10,7 @@ import {
 	TouchableOpacity
 } from 'react-native'
 import firebase from 'react-native-firebase';
-import axios from 'axios';
+import { formatEmail, formatPseudo, formatPwd} from "./utils/validation";
 
 class Signup extends React.Component {
 	constructor(props) {
@@ -55,10 +54,10 @@ class Signup extends React.Component {
 		else {
 
 			this.setState({is_load: true})
-			await firebase.auth().createUserWithEmailAndPassword(this.state.user_email, this.state.user_pwd)
+			await firebase.auth().createUserWithEmailAndPassword(this.state.user_email.trim(), this.state.user_pwd.trim())
 			const user = firebase.auth().currentUser
 			token = await this._getToken(user)
-			await user.updateProfile({displayName: this.state.user_pseudo})
+			await user.updateProfile({displayName: this.state.user_pseudo.trim()})
 			user.sendEmailVerification()
 			let config = {
 				headers: {
@@ -75,9 +74,6 @@ class Signup extends React.Component {
 
 	_showSendButton() {
 		const { conf_pwd, user_pwd, user_email, user_pseudo} = this.state
-		const formatPwd = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?a-zA-Z0-9]{6,21}$/
-		const formatEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-		const formatPseudo = /^[a-zA-Z0-9][a-zA-Z0-9-_]{4,14}[a-zA-Z0-9]$/
 		const error = () => {
 			if (user_email.length > 0 && !(formatEmail.test(user_email))) {
 				return "Invalid email address"
