@@ -75,12 +75,13 @@ class CreatePlaylist extends React.Component {
                     />
                 </Appbar.Header>
                 <TextInput
+                    style={{ color: '#000000', borderColor:'#FFFFFF',borderWidth: 0.5, backgroundColor : '#FFFFFF'}}
                     placeholder="Titre de la playlist"
                     onChangeText={(titre) => {
                         this.setState({ titre })
                     }}
                 />
-                <Picker selectedValue={this.state.genre} onValueChange={(genre) => this.setState({ genre })}>
+                <Picker style={{ color: '#000000' , borderColor:'#FFFFFF', borderWidth: 0.5, backgroundColor : '#FFFFFF'}} selectedValue={this.state.genre} onValueChange={(genre) => this.setState({ genre })}>
                     <Picker.Item label="Jazz" value="jazz" />
                     <Picker.Item label="Electro" value="electro" />
                     <Picker.Item label="Classique" value="classique" />
@@ -107,11 +108,12 @@ class CreatePlaylist extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
+        color: "#FFFFFF",
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         left: 0,
         right: 0,
         top: 0,
