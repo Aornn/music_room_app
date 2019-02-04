@@ -38,14 +38,12 @@ class Signup extends React.Component {
                 if (user.emailVerified === false) {
                     this.setState({ is_load: false })
                     Alert.alert("OUPS", "Votre email n'est pas valide vous devez le valider",
-                        [
-                            {
-                                text: "Se connecter", onPress: async () => {
+                        [{
+                                text: "OK", onPress: async () => {
                                     await firebase.auth().signOut()
                                     this.props.navigation.navigate('Login')
                                 }
-                            }
-                        ],
+                            }],
                         { cancelable: false })
                 }
                 else {
@@ -57,7 +55,7 @@ class Signup extends React.Component {
                 Alert.alert("OUPS", "Mauvaise combinaison Email et mot de passe",
                     [
                         {
-                            text: "Se connecter", onPress: async () => {
+                            text: "OK", onPress: async () => {
                                 this.props.navigation.navigate('Login')
                             }
                         }
@@ -77,30 +75,41 @@ class Signup extends React.Component {
     }
 
     render() {
-        return (
+    	const { user_email, user_pwd } = this.state
+	    const formatPwd = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?a-zA-Z0-9]{6,21}$/
+	    const formatEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+	    const showLoginButton = formatPwd.test(user_pwd) && formatEmail.test(user_email)
+	    return (
             <SafeAreaView style={styles.main_container}>
                 <Text style={styles.titre} >Connexion</Text>
                 <TextInput
-                    mode='outlined'
+	                keyboardType="email-address"
+	                mode='outlined'
                     label="Email"
-                    placeholder={this.state.user_email}
+	                value={user_email}
+	                style={styles.textInput}
                     onChangeText={(email) => {
                         this.setState({ user_email: email })
                     }} />
                 <TextInput
-                    mode='outlined'
+	                mode='outlined'
                     label="Mot de passe"
+	                value={user_pwd}
                     secureTextEntry={true}
+	                style={styles.textInput}
                     onChangeText={(pwd) => {
                         this.setState({ user_pwd: pwd })
                     }} />
-                <View style={{ alignItems: 'center' }}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => this._login()}
-                        underlayColor='#fff'>
-                        <Text style={styles.text_btn}>Se connecter</Text>
-                    </TouchableOpacity>
+	            <View style={{ alignItems: 'center', flexGrow: 1 }}>
+		            {showLoginButton && <TouchableOpacity
+			            style={styles.buttonHighlight}
+			            activeOpacity={1}
+			            onPress={() => this._login()}
+			            underlayColor='#fff'>
+			            <Text style={styles.text_btn}>Se connecter</Text>
+		            </TouchableOpacity>}
+	            </View>
+                <View style={{ alignItems: 'center'}}>
                     <TouchableOpacity
                         style={styles.button}
                         onPress={() => this.props.navigation.navigate('Signup')}
@@ -124,6 +133,7 @@ const styles = StyleSheet.create({
     main_container: {
         flex: 1,
         backgroundColor : '#191414',
+	    color: 'white'
     },
     titre: {
         fontSize: 25,
@@ -144,22 +154,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    textinput: {
-        marginLeft: 5,
-        marginRight: 5,
-        marginTop: 5,
-        marginBottom: 5,
-        height: 35,
-        borderColor: '#9f9f9f',
-        borderRadius: 5,
-        borderWidth: 1,
-        paddingLeft: 5,
+    textInput: {
+    	color: 'white'
     },
     text_btn: {
         color: "rgb(55,128,243)",
         textAlign: 'center',
         fontSize: 18
     },
+	buttonHighlight: {
+		height: 50,
+		width: 300,
+		marginTop: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRadius: 5,
+		backgroundColor: '#FFF',
+	},
     button: {
         height: 50,
         width: 300,
