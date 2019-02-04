@@ -39,7 +39,8 @@ const song_css = {
     },
     titre:
     {
-
+        textAlignVertical: 'center',
+        flexWrap: 'wrap',
         color: '#FFFFFF',
         paddingTop: 5,
         paddingBottom: 5,
@@ -49,8 +50,9 @@ const song_css = {
         fontFamily: 'sans-serif-medium',
     },
     image: {
-        width: 50,
-        height: 50,
+        width: 60,
+        height: 60,
+        margin : 5,
     },
 }
 

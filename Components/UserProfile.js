@@ -4,7 +4,7 @@ import firebase from 'react-native-firebase';
 import { deleteMe } from './User_actions/DeleteMe'
 import { Appbar } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
-import SimpleLineIcons from'react-native-vector-icons/SimpleLineIcons'
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 class UserProfile extends React.Component {
@@ -61,45 +61,34 @@ class UserProfile extends React.Component {
                     onPress={() => this.props.navigation.navigate('Search', { user: this.state.user })}
                     underlayColor='#fff'
                     style={styles.button}>
-                    <Feather style={styles.icon} name='search' size={30} color="white">
-                        <Text style={styles.txt_btn}>Chercher musiques</Text>
-                    </Feather>
+                    <Feather style={styles.icon} name='search' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Chercher musiques</Text>
+
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('UserPlaylist')}
                     underlayColor='#fff'
                     style={styles.button}>
-                    <Feather style={styles.icon} name='music' size={30} color="white">
-                        <Text style={styles.txt_btn}>Mes playlists</Text>
-                    </Feather>
+                    <Feather style={styles.icon} name='music' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Mes playlists</Text>
+
                 </TouchableOpacity>
- 
+
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('CreatePlaylist', { user: this.state.user })}
                     underlayColor='#fff'
                     style={styles.button}>
-                    <Ionicons style={styles.icon} name='md-create' size={30} color="white">
-                        <Text style={styles.txt_btn}>Créer playlist</Text>
-                    </Ionicons>
+                    <Ionicons style={styles.icon} name='md-create' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Créer playlist</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('UserInfo', { user: this.state.user })}
                     underlayColor='#fff'
                     style={styles.button}>
-                    <Ionicons style={styles.icon} name='md-options' size={30} color="white">
-                        <Text style={styles.txt_btn}>Détail du compte</Text>
-                    </Ionicons>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => deleteMe(this.state.user)}
-                    underlayColor='#fff'
-                    style={styles.button}>
-                    <AntDesign style={styles.icon} name='deleteuser' size={30} color="white">
-                        <Text style={styles.txt_btn}>Supprimer son compte</Text>
-                    </AntDesign>
+                    <Ionicons style={styles.icon} name='md-options' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Détail du compte</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -110,9 +99,16 @@ class UserProfile extends React.Component {
                     }}
                     underlayColor='#fff'
                     style={styles.button}>
-                    <SimpleLineIcons style={styles.icon} name='logout' size={30} color="white">
-                        <Text style={styles.txt_btn}>Déconnexion</Text>
-                    </SimpleLineIcons>
+                    <SimpleLineIcons style={styles.icon} name='logout' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Déconnexion</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => deleteMe(this.state.user)}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <AntDesign style={styles.icon} name='deleteuser' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Supprimer son compte</Text>
                 </TouchableOpacity>
                 {this._displayLoading()}
             </SafeAreaView>
@@ -123,8 +119,8 @@ class UserProfile extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
-       
+        backgroundColor: '#191414',
+
     },
     manage: {
         alignItems: 'center',
@@ -132,7 +128,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         left: 0,
         right: 0,
         top: 0,
@@ -140,18 +136,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    txt_btn : {
-        paddingLeft : 100,
-        fontSize : 20,
+    txt_btn: {
+        paddingLeft: 20,
+        color: "#FFFFFF",
+        fontSize: 20,
     },
     button: {
+        flexDirection: 'row',
         // backgroundColor : '#FF0000',
         height: 30,
         marginRight: 2,
         marginLeft: 2,
         marginTop: 20,
         borderRadius: 5,
-        
+
     }
 })
 
