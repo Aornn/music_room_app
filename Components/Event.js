@@ -1,5 +1,6 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator} from 'react-native'
+import { withTheme } from 'react-native-paper';
 
 class Event extends React.Component {
     constructor(props) {
@@ -33,7 +34,9 @@ class Event extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        marginTop: 20,
+        backgroundColor : '#191414',
+        color : '#FFFFFF'
+
     }
 })
 

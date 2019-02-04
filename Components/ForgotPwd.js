@@ -64,6 +64,7 @@ class ForgotPwd extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
     },
     titre : {
         fontSize: 25,

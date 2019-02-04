@@ -165,6 +165,7 @@ class Signup extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
     },
     inscription: {
         fontSize: 25,
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
         height: 50,
         width: 300,
         marginTop: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 5,
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,

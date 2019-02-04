@@ -8,32 +8,20 @@ import Playlist from '../Components/Playlist'
 import Event from '../Components/Event'
 import ModifUser from '../Components/User_actions/ModifyUserInfo'
 import CreatePlaylist from '../Components/User_actions/CreatePlaylist'
+import UserPlaylist from '../Components/User_actions/UserPlaylist'
 import PlaylistDetail from '../Components/Playlist/PlaylistDetail'
 import Search from '../Components/User_actions/SearchSong'
 
-const UserNav = createSwitchNavigator({
-    UserProfil: {
-        screen: UserProfile,
+
+const PlaylistNav = createStackNavigator({
+    Playlist: {
+        screen: Playlist,
         navigationOptions: {
-            title: 'Mon Compte'
+            title: 'Playlist'
         }
+
     },
-    UserInfo: {
-        screen: ModifUser,
-        navigationOptions: {
-            title: 'Modifier mes informations'
-        }
-    },
-    CreatePlaylist: {
-        screen: CreatePlaylist,
-        navigationOptions: {
-            title: 'Crée ta playlist'
-        }
-    },
-    Search: {
-        screen: Search,
-    },
-    PlaylistDetail: {
+    PlaylistDetailPub: {
         screen: PlaylistDetail,
     }
 },
@@ -41,14 +29,40 @@ const UserNav = createSwitchNavigator({
         headerMode: 'none'
     })
 
+const UserNav = createStackNavigator({
+    UserProfil: {
+        screen: UserProfile,
+    },
+    UserInfo: {
+        screen: ModifUser,
+    },
+    CreatePlaylist: {
+        screen: CreatePlaylist,
+    },
+    Search: {
+        screen: Search,
+    },
+    UserPlaylist: {
+        screen: UserPlaylist,
+    },
+    PlaylistDetailUser: {
+        screen: PlaylistDetail,
+    }
+}, {
+        headerMode: 'none'
+    })
+
 
 const Music_nav = createBottomTabNavigator(
     {
         Home: {
-            screen: UserNav
+            screen: UserNav,
+            navigationOptions: {
+                title: 'Bibliothèque'
+            }
         },
         Playlist: {
-            screen: Playlist,
+            screen: PlaylistNav,
             navigationOptions: {
                 title: 'Playlist'
             }
@@ -57,15 +71,18 @@ const Music_nav = createBottomTabNavigator(
         Event: {
             screen: Event,
             navigationOptions: {
-                title: 'Evenement'
+                title: 'Evènement'
             }
         }
     },
     {
         tabBarOptions: {
-            activeBackgroundColor: '#D3D3D3',
+            activeBackgroundColor: '#000000',
             labelStyle: {
                 fontSize: 15,
+            },
+            style : {
+                backgroundColor : '#191414'
             }
         }
     }

@@ -42,7 +42,7 @@ class CreatePlaylist extends React.Component {
             fetch('https://us-central1-music-room-42.cloudfunctions.net/createPlaylist?playlistName=' + this.state.titre + '&genre=' + this.state.genre, config)
                 .then(() => {
                     console.log("Done")
-                    this.props.navigation.navigate('UserProfil', { change: 1 })
+                    this.props.navigation.goBack()
                 })
                 .catch((err) => {
                     this.setState({ is_load: false })
@@ -68,7 +68,7 @@ class CreatePlaylist extends React.Component {
             <SafeAreaView style={styles.main_container}>
                 <Appbar.Header>
                     <Appbar.BackAction
-                        onPress={() => this.props.navigation.navigate('UserProfil')} // peut etre ajouter { change: 1 }
+                        onPress={() => this.props.navigation.goBack()} // peut etre ajouter { change: 1 }
                     />
                     <Appbar.Content
                         title="Creer playlist"
@@ -107,10 +107,11 @@ class CreatePlaylist extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,

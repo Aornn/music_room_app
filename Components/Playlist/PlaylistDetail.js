@@ -3,6 +3,23 @@ import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator } from 'react-n
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
 
+// titles = [
+//     {
+//         name
+//         url
+//         album_cover
+//         artist
+//     },
+//     {
+//         name
+//         url
+//         album_cover
+//         artist
+//     }
+// ]
+
+
+
 class PlaylistDetail extends React.Component {
     constructor(props) {
         super(props);
@@ -31,17 +48,12 @@ class PlaylistDetail extends React.Component {
     _dispTitles() {
         if (this.state.titles.length > 0) {
             return (
-                this.state.titles.map((elem, key) => <Text key={key}>{elem}</Text>)
+                this.state.titles.map((elem, key) => <Text style={{color:'#FFFFFF'}}key={key}>{elem}</Text>)
             )
         }
     }
-    componentWillUnmount() {
-        this.setState({ titles: [], name: '', creator_name: '' })
-        console.log("unmount")
-    }
     componentDidUpdate() {
         if (this.state.id !== this.props.navigation.state.params.id) {
-            console.log("UP")
             var user = firebase.auth().currentUser
             firebase.firestore().collection('playlist').doc(this.props.navigation.state.params.id).onSnapshot((snap) => {
                 this.setState({ id: this.props.navigation.state.params.id, titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false })
@@ -49,10 +61,15 @@ class PlaylistDetail extends React.Component {
         }
     }
     componentDidMount() {
-        console.log("id : " + this.state.id)
         var user = firebase.auth().currentUser
+        this.setState({is_load : true})
         firebase.firestore().collection('playlist').doc(this.state.id).onSnapshot((snap) => {
-            this.setState({ titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false })
+            if (snap.exists) {
+                this.setState({ titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false })
+            }
+            else {
+                this.props.navigation.goBack()
+            }
 
         })
 
@@ -62,7 +79,9 @@ class PlaylistDetail extends React.Component {
             <SafeAreaView style={styles.main_container}>
                 <Appbar.Header>
                     <Appbar.BackAction
-                        onPress={() => this.props.navigation.navigate('UserProfil', { change: 1 })}
+                        onPress={() => {
+                                this.props.navigation.goBack()
+                        }}
                     />
                     <Appbar.Content
                         title={this.state.name}
@@ -80,18 +99,20 @@ class PlaylistDetail extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
+        color : '#FFFFFF'
+
     },
     titre: {
         fontSize: 25,
         textAlign: 'center',
-        color: "#000000",
         paddingTop: 10,
         paddingBottom: 10,
         marginBottom: 20,
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,

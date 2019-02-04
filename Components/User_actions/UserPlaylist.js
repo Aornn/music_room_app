@@ -1,23 +1,20 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
-import { getAllPublicPlaylist } from '../API/getAllPublicPlaylist'
+import { SafeAreaView, View, StyleSheet, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
-import { List} from 'react-native-paper';
-import { Appbar } from 'react-native-paper';
+import { getUserPlaylist } from '../../API/getUserPlaylist'
+import { List, Appbar } from 'react-native-paper';
 
-class Playlist extends React.Component {
+class UserPlaylist extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
-            token: '',
+            is_load: false,
             playlist: [],
             refresh : false, 
-            is_load: false
         }
 
     }
-
     _Onref = () => {
         console.log("onref")
         this.setState({refresh : true})
@@ -25,32 +22,9 @@ class Playlist extends React.Component {
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
-        getAllPublicPlaylist(user).then((p) => {
+        getUserPlaylist(user).then((p) => {
             this.setState({ user, playlist: p, refresh : false })
         })
-    }
-
-    _displayPlaylist() {
-        if (this.state.playlist.length > 0) {
-            // console.log(this.state.playlist)
-            return (
-                <FlatList
-                    data={this.state.playlist}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <List.Item
-                        title={item.Name}
-                        description={item.genre}
-                        left={props => <List.Icon {...props} icon="library-music" />}
-                        onPress={() => {
-                            let id = item.id
-                            this.props.navigation.navigate('PlaylistDetailPub', { id}) 
-                        }}
-                    />}
-                    refreshing={this.state.refresh}
-                    onRefresh={this._Onref}
-                />
-            )
-        }
     }
     _displayLoading() {
         if (this.state.is_load) {
@@ -61,40 +35,51 @@ class Playlist extends React.Component {
             )
         }
     }
-    componentDidUpdate()
-    {
-        if(this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change == 1)
-        {
-            this.setState({is_load : true})
-            var user = firebase.auth().currentUser
-            if (user === null) {
-                this.props.navigation.navigate('Signup')
-            }
-            getAllPublicPlaylist(user).then((p) => {
-                this.setState({ user, playlist: p, is_load:false })
-            })
+    _NavToPlaylistdetail(id) {
+        this.props.navigation.navigate('PlaylistDetailUser', { id})
+    }
+    _displayPlaylist() {
+        if (this.state.playlist.length > 0) {
+            return (
+                <FlatList
+                    data={this.state.playlist}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => <List.Item
+                        title={item.Name}
+                        description={item.genre}
+                        left={props => <List.Icon {...props} icon="library-music" />}
+                        onPress={() => { this._NavToPlaylistdetail(item.id) }}
+                    />}
+                    refreshing={this.state.refresh}
+                    onRefresh={this._Onref}
+                />
+            )
         }
     }
     componentDidMount() {
+        console.log('UserPlaylist is mounted')
         this.setState({ is_load: true })
-        console.log(this.props.navigation.getParam())
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
-        getAllPublicPlaylist(user).then((p) => {
+        getUserPlaylist(user).then((p) => {
             this.setState({ user, playlist: p, is_load: false })
         })
+
     }
     render() {
         return (
+
             <SafeAreaView style={styles.main_container}>
-                            <Appbar.Header>
-                    <Appbar.Content
-                        title="Playlist Publique"
+                <Appbar.Header>
+                    <Appbar.BackAction
+                        onPress={() => {
+                            console.log("if")
+                            this.props.navigation.navigate('UserProfil', { change: 0 })
+                        }}
                     />
                 </Appbar.Header>
-                <Text>Playlist </Text>
                 {this._displayPlaylist()}
                 {this._displayLoading()}
             </SafeAreaView>
@@ -106,9 +91,37 @@ const styles = StyleSheet.create({
     main_container: {
         flex: 1,
         backgroundColor : '#191414',
-
+        // marginTop: 20,
+    },
+    manage: {
+        alignItems: 'center',
+        flexDirection: 'row',
+    },
+    loading_container: {
+        position: 'absolute',
+        backgroundColor : '#191414',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    txt_btn: {
+        color: "rgb(55,128,243)",
+        textAlign: 'center',
+        fontSize: 18
+    },
+    button: {
+        height: 50,
+        width: 200,
+        paddingTop: 10,
+        marginRight: 2,
+        marginLeft: 2,
+        marginTop: 20,
+        borderRadius: 5,
     }
 })
 
 
-export default Playlist
+export default UserPlaylist

@@ -1,17 +1,18 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity, FlatList } from 'react-native'
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native'
 import firebase from 'react-native-firebase';
 import { deleteMe } from './User_actions/DeleteMe'
-import { getUserPlaylist } from '../API/getUserPlaylist'
-import { List, Appbar, Searchbar } from 'react-native-paper';
-
+import { Appbar } from 'react-native-paper';
+import Feather from 'react-native-vector-icons/Feather';
+import SimpleLineIcons from'react-native-vector-icons/SimpleLineIcons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 class UserProfile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
             is_load: false,
-            playlist: [],
         }
 
     }
@@ -24,67 +25,22 @@ class UserProfile extends React.Component {
             )
         }
     }
-    _NavToPlaylistdetail(id) {
-        this.props.navigation.navigate('PlaylistDetail', { id })
-    }
-    _displayPlaylist() {
-        if (this.state.playlist.length > 0) {
-            return (
-                <FlatList
-                    data={this.state.playlist}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <List.Item
-                        title={item.Name}
-                        description={item.genre}
-                        left={props => <List.Icon {...props} icon="library-music" />}
-                        onPress={() => { this._NavToPlaylistdetail(item.id) }}
-                    />}
-
-                />
-            )
-        }
-    }
-    // A garder au cas ou
-    // async _getP(user) {
-    //     var token = await user.getIdToken()
-    //     let config = {
-    //         headers: {
-    //             'Authorization': 'Bearer ' + token
-    //         }
-    //     }
-    //     return axios.get('https://us-central1-music-room-42.cloudfunctions.net/getAllCurrentUserPlaylist', config)
-    //         .then((res) => {
-    //             return res.data
-    //         })
-    // }
-
     componentDidMount() {
-        console.log('in')
+        console.log('Userprofil is mounted')
         this.setState({ is_load: true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
-        getUserPlaylist(user).then((p) => {
-            this.setState({ user, playlist: p, is_load: false })
-        })
+        this.setState({ user, is_load: false })
 
     }
     componentDidUpdate() {
+        console.log('Userprofil is update')
         if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change > 0) {
-            if (this.props.navigation.state.params.change == 2) {
-                this.props.navigation.state.params.change = 0
-                firebase.auth().signOut().then(() => {
-                    this.props.navigation.navigate('Loading')
-                })
-            }
-            else {
-                this.props.navigation.state.params.change = 0
-                var new_user = firebase.auth().currentUser
-                getUserPlaylist(new_user).then((p) => {
-                    this.setState({ new_user, playlist: p, is_load: false })
-                })
-            }
+            this.props.navigation.state.params.change = 0
+            var new_user = firebase.auth().currentUser
+            this.setState({ new_user, is_load: false })
         }
 
     }
@@ -100,40 +56,63 @@ class UserProfile extends React.Component {
                     />
                 </Appbar.Header>
 
-                <Text>Hello {this.state.user.displayName} voici vos playlist : </Text>
-                {this._displayPlaylist()}
-                <View style={styles.manage}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => {
-                            firebase.auth().signOut().then(() => {
-                                this.props.navigation.navigate('Login')
-                            })
-                        }}
-                        underlayColor='#fff'>
-                        <Text style={styles.txt_btn}>Déconnexion</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => deleteMe(this.state.user)}
-                        underlayColor='#fff'>
-                        <Text style={styles.txt_btn}>Supprimer son compte</Text>
-                    </TouchableOpacity>
-                </View>
-                <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('UserInfo', { user: this.state.user })}
-                    underlayColor='#fff'>
-                    <Text style={styles.txt_btn}>Détail du compte</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('CreatePlaylist', { user: this.state.user })}
-                    underlayColor='#fff'>
-                    <Text style={styles.txt_btn}>Créer playlist</Text>
-                </TouchableOpacity>
+
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('Search', { user: this.state.user })}
-                    underlayColor='#fff'>
-                    <Text style={styles.txt_btn}>Chercher musiques</Text>
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Feather style={styles.icon} name='search' size={30} color="white">
+                        <Text style={styles.txt_btn}>Chercher musiques</Text>
+                    </Feather>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('UserPlaylist')}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Feather style={styles.icon} name='music' size={30} color="white">
+                        <Text style={styles.txt_btn}>Mes playlists</Text>
+                    </Feather>
+                </TouchableOpacity>
+ 
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('CreatePlaylist', { user: this.state.user })}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Ionicons style={styles.icon} name='md-create' size={30} color="white">
+                        <Text style={styles.txt_btn}>Créer playlist</Text>
+                    </Ionicons>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('UserInfo', { user: this.state.user })}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Ionicons style={styles.icon} name='md-options' size={30} color="white">
+                        <Text style={styles.txt_btn}>Détail du compte</Text>
+                    </Ionicons>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => deleteMe(this.state.user)}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <AntDesign style={styles.icon} name='deleteuser' size={30} color="white">
+                        <Text style={styles.txt_btn}>Supprimer son compte</Text>
+                    </AntDesign>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => {
+                        firebase.auth().signOut().then(() => {
+                            this.props.navigation.navigate('Login')
+                        })
+                    }}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <SimpleLineIcons style={styles.icon} name='logout' size={30} color="white">
+                        <Text style={styles.txt_btn}>Déconnexion</Text>
+                    </SimpleLineIcons>
                 </TouchableOpacity>
                 {this._displayLoading()}
             </SafeAreaView>
@@ -144,7 +123,8 @@ class UserProfile extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        // marginTop: 20,
+        backgroundColor : '#191414',
+       
     },
     manage: {
         alignItems: 'center',
@@ -152,7 +132,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,
@@ -160,19 +140,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    txt_btn: {
-        color: "rgb(55,128,243)",
-        textAlign: 'center',
-        fontSize: 18
+    txt_btn : {
+        paddingLeft : 100,
+        fontSize : 20,
     },
     button: {
-        height: 50,
-        width: 200,
-        paddingTop: 10,
+        // backgroundColor : '#FF0000',
+        height: 30,
         marginRight: 2,
         marginLeft: 2,
         marginTop: 20,
         borderRadius: 5,
+        
     }
 })
 

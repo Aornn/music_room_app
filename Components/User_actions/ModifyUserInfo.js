@@ -1,6 +1,6 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, TextInput, Button } from 'react-native'
-import { Appbar } from 'react-native-paper';
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, Button } from 'react-native'
+import { Appbar,TextInput } from 'react-native-paper';
 
 class ModifUser extends React.Component {
     constructor(props) {
@@ -83,10 +83,11 @@ class ModifUser extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,

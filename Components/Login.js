@@ -25,27 +25,46 @@ class Signup extends React.Component {
     }
 
     async _login() {
+        var succeed = true
         this.setState({ is_load: true })
         if (this.state.user_email.length > 0 && this.state.user_pwd.length > 5) {
             console.log("Email : " + this.state.user_email + "| mdp : " + this.state.user_pwd)
             await firebase.auth().signInWithEmailAndPassword(this.state.user_email, this.state.user_pwd)
-            var user = firebase.auth().currentUser
-            if (user.emailVerified === false) {
+                .catch(() => {
+                    succeed = false
+                })
+            if (succeed) {
+                var user = firebase.auth().currentUser
+                if (user.emailVerified === false) {
+                    this.setState({ is_load: false })
+                    Alert.alert("OUPS", "Votre email n'est pas valide vous devez le valider",
+                        [
+                            {
+                                text: "Se connecter", onPress: async () => {
+                                    await firebase.auth().signOut()
+                                    this.props.navigation.navigate('Login')
+                                }
+                            }
+                        ],
+                        { cancelable: false })
+                }
+                else {
+                    this.props.navigation.navigate('Main')
+                }
+            }
+            else {
                 this.setState({ is_load: false })
-                Alert.alert("OUPS", "Votre email n'est pas valide vous devez le valider",
+                Alert.alert("OUPS", "Mauvaise combinaison Email et mot de passe",
                     [
                         {
                             text: "Se connecter", onPress: async () => {
-                                await firebase.auth().signOut()
                                 this.props.navigation.navigate('Login')
                             }
                         }
                     ],
                     { cancelable: false })
             }
-            else {
-                this.props.navigation.navigate('Main')
-            }
+
         }
         else {
             Alert.alert("OUPS", "aucune informations",
@@ -64,6 +83,7 @@ class Signup extends React.Component {
                 <TextInput
                     mode='outlined'
                     label="Email"
+                    placeholder={this.state.user_email}
                     onChangeText={(email) => {
                         this.setState({ user_email: email })
                     }} />
@@ -103,6 +123,7 @@ class Signup extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
+        backgroundColor : '#191414',
     },
     titre: {
         fontSize: 25,
@@ -115,7 +136,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         left: 0,
         right: 0,
         top: 0,
@@ -143,7 +164,7 @@ const styles = StyleSheet.create({
         height: 50,
         width: 300,
         marginTop: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor : '#191414',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 5,
