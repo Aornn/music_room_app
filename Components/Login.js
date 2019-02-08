@@ -2,7 +2,7 @@ import React from 'react'
 import { SafeAreaView, View, Button, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native'
 import firebase from 'react-native-firebase';
 import { TextInput, TouchableRipple } from 'react-native-paper';
-import { formatEmail, formatPwd } from "./utils/validation";
+import axios from 'axios';
 
 class Signup extends React.Component {
     constructor(props) {
@@ -25,12 +25,11 @@ class Signup extends React.Component {
     }
 
     async _login() {
-    	const {user_email, user_pwd} = this.state
-        const succeed = true
+        var succeed = true
         this.setState({ is_load: true })
-        if (user_email.length > 0 && user_pwd.length > 5) {
-            console.log("Email : " + user_email + "| mdp : " + user_pwd)
-            await firebase.auth().signInWithEmailAndPassword(user_email.trim(), user_pwd.trim())
+        if (this.state.user_email.length > 0 && this.state.user_pwd.length > 5) {
+            console.log("Email : " + this.state.user_email + "| mdp : " + this.state.user_pwd)
+            await firebase.auth().signInWithEmailAndPassword(this.state.user_email, this.state.user_pwd)
                 .catch(() => {
                     succeed = false
                 })
@@ -77,6 +76,8 @@ class Signup extends React.Component {
 
     render() {
     	const { user_email, user_pwd } = this.state
+	    const formatPwd = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?a-zA-Z0-9]{6,21}$/
+	    const formatEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 	    const showLoginButton = formatPwd.test(user_pwd) && formatEmail.test(user_email)
 	    return (
             <SafeAreaView style={styles.main_container}>

@@ -1,58 +1,106 @@
 import React from 'react'
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import SoundPlayer from 'react-native-sound-player'
-import AntDesign from 'react-native-vector-icons/AntDesign'
 import Feather from 'react-native-vector-icons/Feather'
+import firebase from 'react-native-firebase';
+
 class DispSongs extends React.Component {
+    _AddNav(res) {
+        if (this.props.nav !== undefined) {
+            return (
+                <Feather onPress={() => this.props.nav.navigate('AddPlaylist', { song: res })} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='plus-circle' size={30} color="white"></Feather>
+            )
+        }
+    }
+   _PerformDelete(res, id_playlist) {
+        firebase.firestore().collection('playlist').doc(id_playlist).update({
+            titles: firebase.firestore.FieldValue.arrayRemove(res)
+        })
+
+    }
+    _DeleteSong(res, id_playlist, owner, uid) {
+        if (res.in_Playlist === true && owner === uid) {
+            return (
+                <Feather onPress={() => this._PerformDelete(res, id_playlist)} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='minus-circle' size={30} color="white"></Feather>
+            )
+        }
+    }
     render() {
-        const song = this.props.song
-        const url_img = song.album.cover_xl
-        return (
-            <TouchableOpacity style={song_css.vue} >
-                <View style={song_css.content}>
+        const res = this.props.song
+        const id_playlist = this.props.id
+        const owner = this.props.owner
+        const uid = this.props.uid
+        if (res.type == 'track') {
+            return (
+                <TouchableOpacity style={song_css.vue} onPress={() => {
+                    SoundPlayer.playUrl(res.preview)
+                }} >
                     <Image
                         style={song_css.image}
-                        source={{ uri: url_img }}
+                        source={{ uri: res.album.cover_xl }}
                     />
-                    <Text style={song_css.titre}>{song.title_short}</Text>
-                    <AntDesign onPress={() => SoundPlayer.playUrl(song.preview)} style={{marginLeft : 5, marginRight :5}} name='play' size={30} color="white"></AntDesign>
-                    <Feather onPress={() => SoundPlayer.pause()} style={{marginLeft : 5, marginRight :5}} name='stop-circle' size={30} color="white"></Feather>
-                </View>
-            </TouchableOpacity>
-        )
+                    <View style={song_css.desc}>
+                        <Text style={song_css.titre}>{res.title_short}</Text>
+                        <Text style={song_css.underline}>{res.artist.name}</Text>
+                        <Text style={song_css.underline}>Chanson</Text>
+                    </View>
+                    <Feather onPress={() => SoundPlayer.stop()} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='stop-circle' size={30} color="white"></Feather>
+                    {this._AddNav(res)}
+                    {this._DeleteSong(res, id_playlist, owner, uid)}
+                </TouchableOpacity>
+            )
+        }
+        else {
+            return (
+                <TouchableOpacity style={song_css.vue}>
+
+                    <Image
+                        style={song_css.image}
+                        source={{ uri: res.picture_xl }}
+                    />
+                    <View style={song_css.desc}>
+                        <Text style={song_css.titre}>{res.name}</Text>
+                        <Text style={song_css.underline}>Artiste</Text>
+                    </View>
+
+                </TouchableOpacity>
+            )
+        }
+
     }
 }
 
 const song_css = {
     vue:
     {
-        backgroundColor: '#000000',
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: '#d6d7da',
-        marginTop: 5,
+        flexDirection: 'row',
+        backgroundColor: 'rgb(18,18,18)',
+        borderRadius: 5,
+        margin: 5,
         flex: 1,
     },
-    content : 
-    {
-        flexDirection : 'row',
+    underline: {
+        color: '#FFFFFF'
+    },
+    desc: {
+        flex : 1,
+        marginLeft: 5,
+        padding: 5,
     },
     titre:
     {
-        textAlignVertical: 'center',
         flexWrap: 'wrap',
         color: '#FFFFFF',
-        paddingTop: 5,
-        paddingBottom: 5,
-        textAlign: 'center',
+        padding: 5,
         fontSize: 20,
-        marginBottom: 10,
+        // marginBottom: 5,
         fontFamily: 'sans-serif-medium',
     },
     image: {
+        borderRadius: 100,
         width: 60,
         height: 60,
-        margin : 5,
+        margin: 5,
     },
 }
 

@@ -1,16 +1,20 @@
 import React from 'react'
 import DispSongs from '../DispSongs'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
-import { Appbar, Searchbar} from 'react-native-paper';
+import { Appbar, Searchbar } from 'react-native-paper';
+import SoundPlayer from 'react-native-sound-player'
 import axios from 'axios'
+import firebase from 'react-native-firebase';
+
 class Search extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
             query: '',
-            res_song : [],
-            is_load: false
+            res_song: [],
+            is_load: false,
+            uid: '',
         }
 
     }
@@ -23,14 +27,25 @@ class Search extends React.Component {
             )
         }
     }
-    _ResearchSong () {
-        axios.get('https://api.deezer.com/search/track?q='+this.state.query)
-        .then(res => {
-            console.log(res.data.data)
-            this.setState({res_song : res.data.data})
-        })
-        
+    _ResearchReq() {
+        if (this.state.query.length > 0) {
+            axios.all([axios.get('https://api.deezer.com/search/track?q=' + this.state.query),
+            axios.get('https://api.deezer.com/search/artist?q=' + this.state.query)])
+                .then(axios.spread((songReq, artistReq) => {
+                    res = artistReq.data.data.slice(0, 3)
+                    res = res.concat(songReq.data.data)
+                    this.setState({ res_song: res })
+                }))
+        }
     }
+    // componentDidMount()
+    // {
+    //     var user = firebase.auth().currentUser
+    //     if (user === null) {
+    //         this.props.navigation.navigate('Signup')
+    //     }
+    //     this.setState({uid: user._user.uid})
+    // }
     render() {
         return (
             <SafeAreaView style={styles.main_container}>
@@ -40,14 +55,16 @@ class Search extends React.Component {
                     />
                 </Appbar.Header> */}
                 <Searchbar
-                    onChangeText={query => { this.setState({ query : query }); }}
-                    onSubmitEditing={() => this._ResearchSong()}
-                    style = {{backgroundColor : '#191414'}}
+                    placeholder='Search'
+                    placeholderTextColor='#FFFFFF'
+                    onChangeText={query => { this.setState({ query: query }); }}
+                    onSubmitEditing={() => this._ResearchReq()}
+                    style={{ backgroundColor: 'rgb(68,67,69)', borderRadius: 5, margin: 5 }}
                 />
                 <FlatList
                     data={this.state.res_song}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => <DispSongs song={item} />}
+                    renderItem={({ item }) => <DispSongs song={item} nav={this.props.navigation}/>}
                 />
                 {this._displayLoading()}
             </SafeAreaView>
@@ -58,8 +75,8 @@ class Search extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        color : '#000000',
-        backgroundColor : '#000000',
+        color: '#000000',
+        backgroundColor: '#000000',
     }
 })
 

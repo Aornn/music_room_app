@@ -1,5 +1,5 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, ActivityIndicator, FlatList } from 'react-native'
+import { SafeAreaView, View, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity, Text } from 'react-native'
 import firebase from 'react-native-firebase';
 import { getUserPlaylist } from '../../API/getUserPlaylist'
 import { List, Appbar } from 'react-native-paper';
@@ -16,7 +16,6 @@ class UserPlaylist extends React.Component {
 
     }
     _Onref = () => {
-        console.log("onref")
         this.setState({refresh : true})
         var user = firebase.auth().currentUser
         if (user === null) {
@@ -44,12 +43,14 @@ class UserPlaylist extends React.Component {
                 <FlatList
                     data={this.state.playlist}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <List.Item
-                        title={item.Name}
-                        description={item.genre}
-                        left={props => <List.Icon {...props} icon="library-music" />}
-                        onPress={() => { this._NavToPlaylistdetail(item.id) }}
-                    />}
+                    renderItem={({ item }) => 
+                    
+                    
+                    <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
+                    <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
+                </TouchableOpacity>
+}
                     refreshing={this.state.refresh}
                     onRefresh={this._Onref}
                 />

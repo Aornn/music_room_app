@@ -1,33 +1,16 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator } from 'react-native'
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
-
-// titles = [
-//     {
-//         name
-//         url
-//         album_cover
-//         artist
-//     },
-//     {
-//         name
-//         url
-//         album_cover
-//         artist
-//     }
-// ]
-
-
+import DispSongs from '../DispSongs'
 
 class PlaylistDetail extends React.Component {
     constructor(props) {
         super(props);
-        // this.unsubscribe = null;
         this.state = {
             id: this.props.navigation.state.params.id,
-            // ref : firebase.firestore().collection('playlist').doc(id),
             user: {},
+            owner: '',
             is_load: false,
             titles: [],
             name: '',
@@ -47,8 +30,14 @@ class PlaylistDetail extends React.Component {
     }
     _dispTitles() {
         if (this.state.titles.length > 0) {
+            console.log(this.state.titles.length )
             return (
-                this.state.titles.map((elem, key) => <Text style={{color:'#FFFFFF'}}key={key}>{elem}</Text>)
+                // this.state.titles.map((elem, key) => <Text style={{color:'#FFFFFF'}}key={key}>{elem.title}</Text>)
+                <FlatList
+                data={this.state.titles}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => <DispSongs song={item}  id={this.state.id} owner={this.state.owner} uid={this.state.user._user.uid}/>}
+            />
             )
         }
     }
@@ -56,7 +45,7 @@ class PlaylistDetail extends React.Component {
         if (this.state.id !== this.props.navigation.state.params.id) {
             var user = firebase.auth().currentUser
             firebase.firestore().collection('playlist').doc(this.props.navigation.state.params.id).onSnapshot((snap) => {
-                this.setState({ id: this.props.navigation.state.params.id, titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false })
+                this.setState({ id: this.props.navigation.state.params.id, titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false, owner : snap.data().owner })
             })
         }
     }
@@ -65,7 +54,7 @@ class PlaylistDetail extends React.Component {
         this.setState({is_load : true})
         firebase.firestore().collection('playlist').doc(this.state.id).onSnapshot((snap) => {
             if (snap.exists) {
-                this.setState({ titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false })
+                this.setState({ titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false, owner : snap.data().owner })
             }
             else {
                 this.props.navigation.goBack()

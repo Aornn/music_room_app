@@ -11,6 +11,7 @@ import CreatePlaylist from '../Components/User_actions/CreatePlaylist'
 import UserPlaylist from '../Components/User_actions/UserPlaylist'
 import PlaylistDetail from '../Components/Playlist/PlaylistDetail'
 import Search from '../Components/User_actions/SearchSong'
+import AddPlaylist from '../Components/User_actions/AddPlaylist'
 
 
 const PlaylistNav = createStackNavigator({
@@ -41,6 +42,9 @@ const UserNav = createStackNavigator({
     },
     Search: {
         screen: Search,
+    },
+    AddPlaylist: {
+        screen: AddPlaylist,
     },
     UserPlaylist: {
         screen: UserPlaylist,
@@ -82,7 +86,7 @@ const Music_nav = createBottomTabNavigator(
                 fontSize: 15,
             },
             style : {
-                backgroundColor : '#191414'
+                backgroundColor : 'rgb(31,32,35)'
             }
         }
     }
