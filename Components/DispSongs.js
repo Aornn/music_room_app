@@ -8,16 +8,20 @@ class DispSongs extends React.Component {
     _AddNav(res) {
         if (this.props.nav !== undefined) {
             return (
-                <Feather onPress={() => this.props.nav.navigate('AddPlaylist', { song: res })} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='plus-circle' size={30} color="white"></Feather>
+                <Feather onPress={() => {
+                    SoundPlayer.stop()
+                    this.props.nav.navigate('AddPlaylist', { song: res })
+                }} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='plus-circle' size={30} color="white"></Feather>
             )
         }
     }
-   _PerformDelete(res, id_playlist) {
+    _PerformDelete(res, id_playlist) {
         firebase.firestore().collection('playlist').doc(id_playlist).update({
             titles: firebase.firestore.FieldValue.arrayRemove(res)
         })
 
     }
+    //ajouter dans cette fonction une condition qui permet de se subscribe à une playlist donc changer la fct dans getalluserplaylsit
     _DeleteSong(res, id_playlist, owner, uid) {
         if (res.in_Playlist === true && owner === uid) {
             return (
@@ -25,6 +29,7 @@ class DispSongs extends React.Component {
             )
         }
     }
+
     render() {
         const res = this.props.song
         const id_playlist = this.props.id
@@ -33,7 +38,14 @@ class DispSongs extends React.Component {
         if (res.type == 'track') {
             return (
                 <TouchableOpacity style={song_css.vue} onPress={() => {
-                    SoundPlayer.playUrl(res.preview)
+                    console.log('in : ' + res.preview)
+                    try {
+                        SoundPlayer.playUrl(res.preview)
+
+                    }
+                    catch (e) {
+                        console.log('eer' + e)
+                    }
                 }} >
                     <Image
                         style={song_css.image}
@@ -83,7 +95,7 @@ const song_css = {
         color: '#FFFFFF'
     },
     desc: {
-        flex : 1,
+        flex: 1,
         marginLeft: 5,
         padding: 5,
     },

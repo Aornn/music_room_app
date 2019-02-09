@@ -8,6 +8,7 @@ import firebase from 'react-native-firebase';
 class Search extends React.Component {
     constructor(props) {
         super(props);
+        this.ref = firebase.firestore().collection('playlist')
         this.state = {
             playlist: [],
             is_load: true,
@@ -27,7 +28,7 @@ class Search extends React.Component {
     _addPlaylist(id) {
         console.log(id)
         const song = this.props.navigation.state.params.song
-        firebase.firestore().collection('playlist').doc(id).update({
+        this.ref.doc(id).update({
             titles: firebase.firestore.FieldValue.arrayUnion(
                 {
                     ...song,
@@ -44,7 +45,7 @@ class Search extends React.Component {
             this.props.navigation.navigate('Signup')
         }
         let playlist = []
-        const res = await firebase.firestore().collection('playlist').where('follower', 'array-contains', user._user.uid).get()
+        const res = await this.ref.where('follower', 'array-contains', user._user.uid).get()
         res.forEach(elem => {
             playlist.push({
                 id: elem.id,

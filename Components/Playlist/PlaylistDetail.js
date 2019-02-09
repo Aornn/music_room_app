@@ -1,12 +1,14 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
-import { Appbar } from 'react-native-paper';
+import { Appbar, Switch } from 'react-native-paper';
 import DispSongs from '../DispSongs'
 
 class PlaylistDetail extends React.Component {
     constructor(props) {
         super(props);
+        this.ref = firebase.firestore().collection('playlist').doc(this.props.navigation.state.params.id)
+        this.sub = null
         this.state = {
             id: this.props.navigation.state.params.id,
             user: {},
@@ -15,6 +17,9 @@ class PlaylistDetail extends React.Component {
             titles: [],
             name: '',
             creator_name: '',
+            switch_state: null,
+            switch_state_follow: null,
+            uid: '',
         }
 
     }
@@ -30,38 +35,101 @@ class PlaylistDetail extends React.Component {
     }
     _dispTitles() {
         if (this.state.titles.length > 0) {
-            console.log(this.state.titles.length )
+            console.log(this.state.titles.length)
             return (
-                // this.state.titles.map((elem, key) => <Text style={{color:'#FFFFFF'}}key={key}>{elem.title}</Text>)
                 <FlatList
-                data={this.state.titles}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => <DispSongs song={item}  id={this.state.id} owner={this.state.owner} uid={this.state.user._user.uid}/>}
-            />
+                    data={this.state.titles}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) =>
+                        <DispSongs song={item} id={this.state.id} owner={this.state.owner} uid={this.state.user._user.uid} />
+                    }
+                />
             )
         }
     }
-    componentDidUpdate() {
-        if (this.state.id !== this.props.navigation.state.params.id) {
-            var user = firebase.auth().currentUser
-            firebase.firestore().collection('playlist').doc(this.props.navigation.state.params.id).onSnapshot((snap) => {
-                this.setState({ id: this.props.navigation.state.params.id, titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false, owner : snap.data().owner })
+    _dispChangeAccess() {
+        if (this.state.uid === this.state.owner) {
+            return (
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 20, padding: 5 }}>Visible par tous : </Text>
+                    <Switch
+                        value={this.state.switch_state}
+                        onValueChange={(data) => {
+                            if (data === true) {
+                                this.ref.update({
+                                    accessibility: {
+                                        public: true
+                                    }
+                                })
+                            }
+                            else {
+                                this.ref.update({
+                                    accessibility: {
+                                        public: false
+                                    }
+                                })
+                            }
+                            this.setState({ switch_state: data });
+                        }}
+                    />
+                </View>
+            )
+        }
+        else {
+            return (
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 20, padding: 5 }}>S'abonner: </Text>
+                    <Switch
+                        value={this.state.switch_state_follow}
+                        onValueChange={(data) => {
+                            if (data === true && this.state.switch_state_follow === false) {
+                                this.ref.update({
+                                    follower: firebase.firestore.FieldValue.arrayUnion(this.state.uid)
+                                })
+                                this.setState({ switch_state_follow: true })
+                            }
+                            else if (data == false && this.state.switch_state_follow === true) {
+                                this.ref.update({
+                                    follower: firebase.firestore.FieldValue.arrayRemove(this.state.uid)
+                                })
+                                this.setState({ switch_state_follow: false })
+                            }
+                        }}
+                    />
+                </View>
+            )
+        }
+    }
+    onUpdate = (snap) => {
+        var inside_follower = false
+        if (snap.exists) {
+            if (this.state.switch_state_follow === null) {
+                snap.data().follower.forEach(element => {
+                    if (element === this.state.uid) {
+                        inside_follower = true
+                    }
+                });
+                this.setState({ switch_state_follow: inside_follower })
+            }
+            this.setState({
+                titles: snap.data().titles, name: snap.data().Name,
+                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner, switch_state: snap.data().accessibility.public
             })
+        }
+        else {
+            this.props.navigation.goBack()
         }
     }
     componentDidMount() {
+        console.log('mount / id : ' + this.state.id)
         var user = firebase.auth().currentUser
-        this.setState({is_load : true})
-        firebase.firestore().collection('playlist').doc(this.state.id).onSnapshot((snap) => {
-            if (snap.exists) {
-                this.setState({ titles: snap.data().titles, name: snap.data().Name, creator_name: "Par " + snap.data().creator_name, user: user, is_load: false, owner : snap.data().owner })
-            }
-            else {
-                this.props.navigation.goBack()
-            }
+        this.setState({ is_load: true })
+        this.sub = this.ref.onSnapshot(this.onUpdate)
+        this.setState({ user, uid: user._user.uid })
 
-        })
-
+    }
+    componentWillUnmount() {
+        this.sub()
     }
     render() {
         return (
@@ -69,7 +137,7 @@ class PlaylistDetail extends React.Component {
                 <Appbar.Header>
                     <Appbar.BackAction
                         onPress={() => {
-                                this.props.navigation.goBack()
+                            this.props.navigation.goBack()
                         }}
                     />
                     <Appbar.Content
@@ -78,6 +146,7 @@ class PlaylistDetail extends React.Component {
                     />
                     <Appbar.Action icon="more-vert" onPress={this._onMore} />
                 </Appbar.Header>
+                {this._dispChangeAccess()}
                 {this._dispTitles()}
                 {this._displayLoading()}
             </SafeAreaView>
@@ -88,8 +157,8 @@ class PlaylistDetail extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
-        color : '#FFFFFF'
+        backgroundColor: '#191414',
+        color: '#FFFFFF'
 
     },
     titre: {
@@ -101,7 +170,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         left: 0,
         right: 0,
         top: 0,

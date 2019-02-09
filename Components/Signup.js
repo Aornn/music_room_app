@@ -16,7 +16,6 @@ import axios from 'axios';
 class Signup extends React.Component {
 	constructor(props) {
 		super(props);
-		this.ref = firebase.firestore().collection('test_react_native');
 		this.state = {
 			user_email: '',
 			user_pwd: '',

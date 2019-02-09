@@ -26,7 +26,7 @@ class UserProfile extends React.Component {
         }
     }
     componentDidMount() {
-        console.log('Userprofil is mounted')
+
         this.setState({ is_load: true })
         var user = firebase.auth().currentUser
         if (user === null) {
@@ -36,7 +36,6 @@ class UserProfile extends React.Component {
 
     }
     componentDidUpdate() {
-        console.log('Userprofil is update')
         if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change > 0) {
             this.props.navigation.state.params.change = 0
             var new_user = firebase.auth().currentUser

@@ -2,7 +2,6 @@ import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native'
 import { getAllPublicPlaylist } from '../API/getAllPublicPlaylist'
 import firebase from 'react-native-firebase';
-import { List } from 'react-native-paper';
 import { Appbar } from 'react-native-paper';
 
 class Playlist extends React.Component {
@@ -37,8 +36,7 @@ class Playlist extends React.Component {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) =>
                     <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => {
-                        let id = item.id
-                        this.props.navigation.navigate('PlaylistDetailPub', { id })
+                        this.props.navigation.navigate('PlaylistDetailPub', { id : item.id })
                     }}>
                         <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
                         <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
@@ -71,7 +69,7 @@ class Playlist extends React.Component {
     }
     componentDidMount() {
         this.setState({ is_load: true })
-        console.log(this.props.navigation.getParam())
+        // console.log(this.props.navigation.getParam())
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
@@ -100,6 +98,16 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#191414',
 
+    },
+    loading_container: {
+        position: 'absolute',
+        backgroundColor: '#191414',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 })
 
