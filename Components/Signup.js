@@ -3,7 +3,6 @@ import {
 	SafeAreaView,
 	View,
 	TextInput,
-	Button,
 	StyleSheet,
 	Text,
 	ActivityIndicator,
@@ -11,11 +10,12 @@ import {
 	TouchableOpacity
 } from 'react-native'
 import firebase from 'react-native-firebase';
-import axios from 'axios';
+import {formatEmail, formatPseudo, formatPwd} from "./../utils/validation";
 
 class Signup extends React.Component {
 	constructor(props) {
 		super(props);
+		this.ref = firebase.firestore().collection('test_react_native');
 		this.state = {
 			user_email: '',
 			user_pwd: '',
@@ -54,10 +54,10 @@ class Signup extends React.Component {
 		else {
 
 			this.setState({is_load: true})
-			await firebase.auth().createUserWithEmailAndPassword(this.state.user_email, this.state.user_pwd)
+			await firebase.auth().createUserWithEmailAndPassword(this.state.user_email.trim(), this.state.user_pwd.trim())
 			const user = firebase.auth().currentUser
 			token = await this._getToken(user)
-			await user.updateProfile({displayName: this.state.user_pseudo})
+			await user.updateProfile({displayName: this.state.user_pseudo.trim()})
 			user.sendEmailVerification()
 			let config = {
 				headers: {
@@ -73,10 +73,7 @@ class Signup extends React.Component {
 
 
 	_showSendButton() {
-		const { conf_pwd, user_pwd, user_email, user_pseudo} = this.state
-		const formatPwd = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?a-zA-Z0-9]{6,21}$/
-		const formatEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-		const formatPseudo = /^[a-zA-Z0-9][a-zA-Z0-9-_]{4,14}[a-zA-Z0-9]$/
+		const {conf_pwd, user_pwd, user_email, user_pseudo} = this.state
 		const error = () => {
 			if (user_email.length > 0 && !(formatEmail.test(user_email))) {
 				return "Invalid email address"
@@ -87,7 +84,7 @@ class Signup extends React.Component {
 			else if (user_pwd.length > 0 && (user_pwd.length < 6 || !(formatPwd.test(user_pwd)))) {
 				return "Le mot de passe doit etre plus long que 6 caractères et avoir au moins un caractère spécial"
 			}
-			else if (user_pwd.length > 0 && conf_pwd.length < user_pwd.length ) {
+			else if (user_pwd.length > 0 && conf_pwd.length < user_pwd.length) {
 				return ""
 			}
 			else if (user_pwd.length > 0) {
@@ -114,7 +111,7 @@ class Signup extends React.Component {
 						{error()}
 					</Text>
 				</View>
-				)
+			)
 		}
 	}
 
@@ -150,14 +147,18 @@ class Signup extends React.Component {
 					placeholderTextColor="#8c8c8c"
 					secureTextEntry={true}
 					style={styles.textInput}
-					onChangeText={(value) => {this.setState({user_pwd: value})}}
+					onChangeText={(value) => {
+						this.setState({user_pwd: value})
+					}}
 				/>
 				<TextInput
 					placeholder="Mot de passe confirmation"
 					placeholderTextColor="#8c8c8c"
 					secureTextEntry={true}
 					style={styles.textInput}
-					onChangeText={(value) => {this.setState({conf_pwd: value})}}
+					onChangeText={(value) => {
+						this.setState({conf_pwd: value})
+					}}
 				/>
 				{this._showSendButton()}
 				<View style={{alignItems: 'center'}}>
