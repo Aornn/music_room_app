@@ -8,7 +8,8 @@ class ForgotPwd extends React.Component {
 		super(props);
 		this.state = {
 			user_email: '',
-			is_load: false
+			is_load: false,
+			error: false
 		}
 
 	}
@@ -24,43 +25,40 @@ class ForgotPwd extends React.Component {
 	}
 
 	_forgotPWD() {
-		if (this.state.user_email.length > 0) {
-			this.setState({is_load: true})
-			firebase.auth().sendPasswordResetEmail(this.state.user_email.trim())
-				.then(() => {
-					console.log("sucess")
-					this.props.navigation.navigate('Login')
-				})
-				.catch((err) => {
-					this.setState({is_load: false})
-					console.log(err)
-				})
+		this.setState({is_load: true})
+		firebase.auth().sendPasswordResetEmail(this.state.user_email.trim())
+			.then(() => {
+				this.props.navigation.navigate('Login')
+				console.log("sucess")
+			})
+			.catch((err) => {
+				this.setState({is_load: false, error: err.message})
+				console.log(err)
+			})
 
-		}
-		else {
-			Alert.alert("OUPS", "Veuillez remplir le champ Email",
-				[
-					{text: 'OK'}
-				],
-				{cancelable: false})
-		}
 	}
 
+
 	render() {
-		const showButton = formatEmail.test(this.state.user_email.trim())
+		const showButton = formatEmail.test(this.state.user_email.trim()) && !this.state.error
 		return (
 			<SafeAreaView style={styles.main_container}>
 				<Text style={styles.titre}>Connexion</Text>
 				<TextInput
 					placeholder="Email"
 					style={styles.textInput} onChangeText={(email) => {
-					this.setState({user_email: email})
+					this.setState({user_email: email, error: false})
 				}}/>
 				<Button
 					title='Envoyer'
 					disabled={!showButton}
 					onPress={() => this._forgotPWD()}
 				/>
+				{this.state.error && <View style={{alignItems: 'center', paddingLeft: 10, paddingRight: 10}}>
+					<Text style={styles.errorText}>
+						{this.state.error}
+					</Text>
+				</View>}
 				{this._displayLoading()}
 			</SafeAreaView>
 		)
@@ -83,6 +81,9 @@ const styles = StyleSheet.create({
 	},
 	textInput: {
 		color: 'white'
+	},
+	errorText: {
+		color: 'red'
 	}
 })
 
