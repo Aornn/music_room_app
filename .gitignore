@@ -471,3 +471,4 @@ cmake-build-*/
 .idea/sonarlint
 
 android/
+.idea/
