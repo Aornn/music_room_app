@@ -1,17 +1,19 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
-import { Appbar, Switch } from 'react-native-paper';
+import { Appbar } from 'react-native-paper';
 import DispSongs from '../DispSongs'
 
 class EventDetail extends React.Component {
     constructor(props) {
         super(props);
         this.ref = firebase.firestore().collection('event').doc(this.props.navigation.state.params.id)
+        this.event_ref = firebase.firestore().collection('vote').doc(this.props.navigation.state.params.id)
         this.sub = null
         this.state = {
             id: this.props.navigation.state.params.id,
             user: {},
+            vote: undefined,
             owner: '',
             is_load: false,
             titles: [],
@@ -25,6 +27,31 @@ class EventDetail extends React.Component {
         }
 
     }
+    _order(a, b) {
+        const nb1 = parseInt(a.nb_vote, 10);
+        const nb2 = parseInt(b.nb_vote, 10);
+
+        let comparison = 0;
+        if (nb1 > nb2) {
+            comparison = -1;
+        } else if (nb1 < nb2) {
+            comparison = 1;
+        }
+        return comparison;
+    }
+    _compare = (arr, vote) => {
+        for (var key in arr) {
+            if(vote[arr[key].id] !== undefined)
+            {
+                arr[key].nb_vote = vote[arr[key].id].length
+            }
+            else
+            {
+                arr[key].nb_vote = 0
+            }
+        }
+        return arr.sort(this._order)
+    }
 
     _displayLoading() {
         if (this.state.is_load) {
@@ -35,26 +62,15 @@ class EventDetail extends React.Component {
             )
         }
     }
-    _dispTitles() {
-        if (this.state.titles.length > 0) {
-            console.log(this.state.titles.length)
-            return (
-                <FlatList
-                    data={this.state.titles}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) =>
-                        <Text>{item.title_short}</Text>
-                    }
-                />
-            )
-        }
-    }
-
     onUpdate = (snap) => {
         if (snap.exists) {
             this.setState({
-                titles: snap.data().titles, name: snap.data().Name,
-                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner, follower: snap.data().follower,
+                titles: this._compare(snap.data().titles, this.state.vote),
+                name: snap.data().Name,
+                creator_name: "Par " + snap.data().creator_name,
+                is_load: false,
+                owner: snap.data().owner,
+                follower: snap.data().follower,
                 accessibility: snap.data().accessibility
             })
         }
@@ -62,16 +78,22 @@ class EventDetail extends React.Component {
             this.props.navigation.goBack()
         }
     }
+    onUpdateEvent = (snap) => {
+        if (snap.exists) {
+            this.setState({ vote: snap.data(), titles : this._compare(this.state.titles, snap.data())})
+        }
+    }
     componentDidMount() {
-        console.log('mount / id : ' + this.state.id)
         var user = firebase.auth().currentUser
         this.setState({ is_load: true })
+        this.sub_event = this.event_ref.onSnapshot(this.onUpdateEvent)
         this.sub = this.ref.onSnapshot(this.onUpdate)
         this.setState({ user, uid: user._user.uid })
 
     }
     componentWillUnmount() {
         this.sub()
+        this.sub_event()
     }
     render() {
         return (
@@ -88,7 +110,14 @@ class EventDetail extends React.Component {
                     />
                     <Appbar.Action icon="more-vert" onPress={this._onMore} />
                 </Appbar.Header>
-                {this._dispTitles()}
+                <FlatList
+                    extraData={this.state}
+                    data={this.state.titles}
+                    keyExtractor={(item, key) => key.toString()}
+                    renderItem={({ item }) =>
+                        <DispSongs event={true} song={item} vote={this.state.vote} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
+                    }
+                />
                 {this._displayLoading()}
             </SafeAreaView>
         )

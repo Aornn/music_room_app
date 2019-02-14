@@ -48,7 +48,6 @@ class Event extends React.Component {
             console.log(position)
             var timestamp = Math.floor(Date.now() / 1000)
             getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
-                console.log(data)
                 this.setState({ is_load: false, user, event: data })
             })
         })

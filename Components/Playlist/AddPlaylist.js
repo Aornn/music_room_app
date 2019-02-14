@@ -5,7 +5,7 @@ import SoundPlayer from 'react-native-sound-player'
 import axios from 'axios'
 import firebase from 'react-native-firebase';
 
-class Search extends React.Component {
+class AddPlaylist extends React.Component {
     constructor(props) {
         super(props);
         this.ref = firebase.firestore().collection('playlist')
@@ -98,4 +98,4 @@ const styles = StyleSheet.create({
 })
 
 
-export default Search
+export default AddPlaylist

@@ -2,9 +2,38 @@ import React from 'react'
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import SoundPlayer from 'react-native-sound-player'
 import Feather from 'react-native-vector-icons/Feather'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import firebase from 'react-native-firebase';
 
 class DispSongs extends React.Component {
+
+    _addingVote(res, id_event, uid) {
+        firebase.firestore().collection('vote').doc(id_event).update({
+            [res.id]: firebase.firestore.FieldValue.arrayUnion(uid)
+        })
+    }
+    _removingVote(res, id_event, uid) {
+        firebase.firestore().collection('vote').doc(id_event).update({
+            [res.id]: firebase.firestore.FieldValue.arrayRemove(uid)
+        })
+    }
+    _PlusMinus(res, event, id_event, uid, vote) {
+        if (event !== undefined && event === true) {
+            if (vote[res.id] !== undefined && vote[res.id].includes(uid)) {
+                return (
+                    <MaterialCommunityIcons onPress={() => this._removingVote(res, id_event, uid)} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='thumb-up' size={30} color="white"></MaterialCommunityIcons>
+                )
+
+            }
+            else {
+                return (
+                    <MaterialCommunityIcons onPress={() => this._addingVote(res, id_event, uid)} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='thumb-up-outline' size={30} color="white"></MaterialCommunityIcons>
+                )
+
+            }
+
+        }
+    }
     _AddToPlaylist(res) {
         if (this.props.nav !== undefined) {
             return (
@@ -20,6 +49,7 @@ class DispSongs extends React.Component {
             return (
                 <Feather onPress={() => {
                     console.log('add to event')
+                    this.props.nav.navigate('AddEvent', { song: res })
                     SoundPlayer.stop()
                 }} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='plus-square' size={30} color="white"></Feather>
             )
@@ -40,15 +70,24 @@ class DispSongs extends React.Component {
         }
     }
 
+    _dispVote(event, vote, res) {
+        if (event !== undefined && event === true) {
+            let value = 0
+            if (vote !== undefined && vote[res.id] !== undefined) {
+                value = vote[res.id].length
+            }
+            return (
+                <Text style={song_css.underline}>Vote : {value}</Text>
+            )
+        }
+    }
     render() {
         const res = this.props.song
         if (res.type == 'track') {
             return (
                 <TouchableOpacity style={song_css.vue} onPress={() => {
-                    console.log('in : ' + res.preview)
                     try {
                         SoundPlayer.playUrl(res.preview)
-
                     }
                     catch (e) {
                         console.log('eer' + e)
@@ -61,8 +100,10 @@ class DispSongs extends React.Component {
                     <View style={song_css.desc}>
                         <Text style={song_css.titre}>{res.title_short}</Text>
                         <Text style={song_css.underline}>{res.artist.name}</Text>
+                        {this._dispVote(this.props.event, this.props.vote, res)}
                         <Text style={song_css.underline}>Chanson</Text>
                     </View>
+                    {this._PlusMinus(res, this.props.event, this.props.id, this.props.uid, this.props.vote)}
                     <Feather onPress={() => SoundPlayer.stop()} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='stop-circle' size={30} color="white"></Feather>
                     {this._AddToPlaylist(res)}
                     {this._AddToEvent(res)}
