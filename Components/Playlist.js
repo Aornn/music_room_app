@@ -3,6 +3,7 @@ import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, Touc
 import { getAllPublicPlaylist } from '../API/getAllPublicPlaylist'
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
+import TrackPlayer from 'react-native-track-player';
 
 class Playlist extends React.Component {
     constructor(props) {
@@ -19,13 +20,13 @@ class Playlist extends React.Component {
 
     _Onref = () => {
         console.log("onref")
-        this.setState({ refresh: true })
+        this.setState({ refresh: true, is_load : true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
         getAllPublicPlaylist(user).then((p) => {
-            this.setState({ user, playlist: p, refresh: false })
+            this.setState({ user, playlist: p, refresh: false, is_load : false })
         })
     }
 
@@ -68,6 +69,15 @@ class Playlist extends React.Component {
         }
     }
     componentDidMount() {
+        // TrackPlayer.add({
+        //     id: 'trackId',
+        //     url: 'https://cdns-preview-8.dzcdn.net/stream/c-8ad574e54c315bd9f89ba34deb2c7650-4.mp3',
+        //     title: 'EMIEN',
+        //     artist: 'deadmau5',
+        //     album: 'while(1<2)',
+        //     genre: 'Progressive House, Electro House',
+        //     date: '2014-05-20T07:00:00+00:00',
+        // });
         this.setState({ is_load: true })
         // console.log(this.props.navigation.getParam())
         var user = firebase.auth().currentUser
@@ -86,6 +96,12 @@ class Playlist extends React.Component {
                         title="Playlist Publique"
                     />
                 </Appbar.Header>
+                {/* <TouchableOpacity onPress={()=>{TrackPlayer.skipToNext()}}><Text style={{color:'#FFFFFF'}}r>NEXT</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>{TrackPlayer.skipToPrevious()}}><Text style={{color:'#FFFFFF'}}r>PREV</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>{TrackPlayer.pause()}}><Text style={{color:'#FFFFFF'}}r>PAUSE</Text></TouchableOpacity>
+                <TouchableOpacity onPress={()=>{TrackPlayer.play()}}><Text style={{color:'#FFFFFF'}}r>PLAY</Text></TouchableOpacity>
+ */}
+
                 {this._displayPlaylist()}
                 {this._displayLoading()}
             </SafeAreaView>

@@ -1,2 +1,2 @@
-# Referenced at /Users/ronan/Documents/42/Music_Room_App/android/app/build/intermediates/merged_manifests/debug/processDebugManifest/merged/AndroidManifest.xml:22
+# Referenced at /Users/ronan/Documents/42/Music_Room_App/android/app/build/intermediates/merged_manifests/debug/processDebugManifest/merged/AndroidManifest.xml:24
 -keep class com.music_room_app.MainApplication { <init>(...); }

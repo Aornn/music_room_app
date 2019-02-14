@@ -23,7 +23,9 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#191414',
     accent: '#1DB954',
-    text : '#FFFFFF'
+    text : '#FFFFFF',
+    placeholder : '#FFFFFF',
+    backdrop : '#FFFFFF'
   }
 };
 export default class App extends React.Component {

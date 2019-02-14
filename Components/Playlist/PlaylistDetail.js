@@ -20,6 +20,8 @@ class PlaylistDetail extends React.Component {
             switch_state: null,
             switch_state_follow: null,
             uid: '',
+            follower : [],
+            accessibility : {}
         }
 
     }
@@ -41,7 +43,7 @@ class PlaylistDetail extends React.Component {
                     data={this.state.titles}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) =>
-                        <DispSongs song={item} id={this.state.id} owner={this.state.owner} uid={this.state.user._user.uid} />
+                        <DispSongs song={item} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
                     }
                 />
             )
@@ -113,7 +115,8 @@ class PlaylistDetail extends React.Component {
             }
             this.setState({
                 titles: snap.data().titles, name: snap.data().Name,
-                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner, switch_state: snap.data().accessibility.public
+                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner, 
+                switch_state: snap.data().accessibility.public, follower : snap.data().follower, accessibility : snap.data().accessibility
             })
         }
         else {

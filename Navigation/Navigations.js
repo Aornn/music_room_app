@@ -6,13 +6,14 @@ import UserProfile from '../Components/UserProfile'
 import ForgotPwd from '../Components/ForgotPwd'
 import Playlist from '../Components/Playlist'
 import Event from '../Components/Event/Event'
+import EventDetail from '../Components/Event/EventDetail'
 import ModifUser from '../Components/User_actions/ModifyUserInfo'
 import CreatePlaylist from '../Components/User_actions/CreatePlaylist'
 import UserPlaylist from '../Components/User_actions/UserPlaylist'
 import PlaylistDetail from '../Components/Playlist/PlaylistDetail'
 import Search from '../Components/User_actions/SearchSong'
-import AddPlaylist from '../Components/User_actions/AddPlaylist'
-
+import AddPlaylist from '../Components/Playlist/AddPlaylist'
+import AddEvent from '../Components/Event/AddEvent'
 
 const PlaylistNav = createStackNavigator({
     Playlist: {
@@ -24,6 +25,22 @@ const PlaylistNav = createStackNavigator({
     },
     PlaylistDetailPub: {
         screen: PlaylistDetail,
+    }
+},
+    {
+        headerMode: 'none'
+    })
+
+const EventNav = createStackNavigator({
+    Event: {
+        screen: Event,
+        navigationOptions: {
+            title: 'Evenement'
+        }
+
+    },
+    EventDetailPub: {
+        screen: EventDetail,
     }
 },
     {
@@ -45,6 +62,9 @@ const UserNav = createStackNavigator({
     },
     AddPlaylist: {
         screen: AddPlaylist,
+    },
+    AddEvent: {
+        screen : AddEvent
     },
     UserPlaylist: {
         screen: UserPlaylist,
@@ -73,7 +93,7 @@ const Music_nav = createBottomTabNavigator(
 
         },
         Event: {
-            screen: Event,
+            screen: EventNav,
             navigationOptions: {
                 title: 'Evènement'
             }
@@ -85,8 +105,8 @@ const Music_nav = createBottomTabNavigator(
             labelStyle: {
                 fontSize: 15,
             },
-            style : {
-                backgroundColor : 'rgb(31,32,35)'
+            style: {
+                backgroundColor: 'rgb(31,32,35)'
             }
         }
     }

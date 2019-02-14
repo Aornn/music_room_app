@@ -7,6 +7,8 @@ import Feather from 'react-native-vector-icons/Feather';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import TrackPlayer from 'react-native-track-player';
+
 class UserProfile extends React.Component {
     constructor(props) {
         super(props);
@@ -25,13 +27,28 @@ class UserProfile extends React.Component {
             )
         }
     }
-    componentDidMount() {
+    async componentDidMount() {
+        // TrackPlayer.setupPlayer().then(async () => {
 
+        //     // Adds a track to the queue
+        //     await TrackPlayer.add({
+        //         id: 'trackId',
+        //         url: 'https://cdns-preview-d.dzcdn.net/stream/c-deda7fa9316d9e9e880d2c6207e92260-5.mp3',
+        //         title: 'Avaritia',
+        //         artist: 'deadmau5',
+        //         album: 'while(1<2)',
+        //         genre: 'Progressive House, Electro House',
+        //         date: '2014-05-20T07:00:00+00:00',
+        //     });
+        //     // Starts playing it
+        //     TrackPlayer.play();
+        // });
         this.setState({ is_load: true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
+
         this.setState({ user, is_load: false })
 
     }
@@ -48,14 +65,10 @@ class UserProfile extends React.Component {
 
             <SafeAreaView style={styles.main_container}>
                 <Appbar.Header>
-                    <Appbar.Action icon="more-vert" onPress={(() => {
-                    })} />
                     <Appbar.Content
                         title="Music Room 42"
                     />
                 </Appbar.Header>
-
-
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('Search', { user: this.state.user })}
                     underlayColor='#fff'
@@ -116,6 +129,13 @@ class UserProfile extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    backgroundVideo: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+    },
     main_container: {
         flex: 1,
         backgroundColor: '#191414',

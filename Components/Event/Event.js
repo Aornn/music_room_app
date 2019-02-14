@@ -1,7 +1,8 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList} from 'react-native'
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native'
 import { getAllPublicEvent } from '../../API/getAllPublicEvent'
 import firebase from 'react-native-firebase';
+import { Appbar } from 'react-native-paper';
 
 class Event extends React.Component {
     constructor(props) {
@@ -23,9 +24,22 @@ class Event extends React.Component {
         }
     }
     _displayEvent() {
-
+        return (
+            <FlatList
+                data={this.state.event}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) =>
+                    <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => {
+                        this.props.navigation.navigate('EventDetailPub', { id: item.id })
+                    }}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
+                        <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres • {item.genre}</Text>
+                    </TouchableOpacity>
+                }
+            />
+        )
     }
-    componentDidMount(){
+    componentDidMount() {
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
@@ -33,14 +47,20 @@ class Event extends React.Component {
         navigator.geolocation.getCurrentPosition(position => {
             console.log(position)
             var timestamp = Math.floor(Date.now() / 1000)
-            getAllPublicEvent(user,position.coords.longitude, position.coords.latitude,timestamp).then((data) => {
-                this.setState({is_load : false,user, event : data })
+            getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
+                console.log(data)
+                this.setState({ is_load: false, user, event: data })
             })
         })
     }
     render() {
         return (
             <SafeAreaView style={styles.main_container}>
+                <Appbar.Header>
+                    <Appbar.Content
+                        title="Evenement Publique"
+                    />
+                </Appbar.Header>
                 {this._displayEvent()}
                 {this._displayLoading()}
             </SafeAreaView>
@@ -51,8 +71,8 @@ class Event extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
-        color : '#FFFFFF'
+        backgroundColor: '#191414',
+        color: '#FFFFFF'
 
     },
     loading_container: {

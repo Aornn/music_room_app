@@ -2,9 +2,7 @@ import React from 'react'
 import DispSongs from '../DispSongs'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import { Appbar, Searchbar } from 'react-native-paper';
-import SoundPlayer from 'react-native-sound-player'
 import axios from 'axios'
-import firebase from 'react-native-firebase';
 
 class Search extends React.Component {
     constructor(props) {

@@ -5,7 +5,7 @@ import Feather from 'react-native-vector-icons/Feather'
 import firebase from 'react-native-firebase';
 
 class DispSongs extends React.Component {
-    _AddNav(res) {
+    _AddToPlaylist(res) {
         if (this.props.nav !== undefined) {
             return (
                 <Feather onPress={() => {
@@ -15,15 +15,25 @@ class DispSongs extends React.Component {
             )
         }
     }
+    _AddToEvent(res) {
+        if (this.props.nav !== undefined) {
+            return (
+                <Feather onPress={() => {
+                    console.log('add to event')
+                    SoundPlayer.stop()
+                }} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='plus-square' size={30} color="white"></Feather>
+            )
+        }
+    }
     _PerformDelete(res, id_playlist) {
         firebase.firestore().collection('playlist').doc(id_playlist).update({
             titles: firebase.firestore.FieldValue.arrayRemove(res)
         })
 
     }
-    //ajouter dans cette fonction une condition qui permet de se subscribe à une playlist donc changer la fct dans getalluserplaylsit
-    _DeleteSong(res, id_playlist, owner, uid) {
-        if (res.in_Playlist === true && owner === uid) {
+    //Par défaut tous le monde peut supprimer sinon seuls les user dans follower le peuvent
+    _DeleteSong(res, id_playlist, owner, uid, follower, access) {
+        if ((id_playlist !== undefined && owner !== undefined && uid !== undefined && follower !== undefined && access !== undefined) && (access.public === true || follower.includes(uid) || owner === uid)) {
             return (
                 <Feather onPress={() => this._PerformDelete(res, id_playlist)} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='minus-circle' size={30} color="white"></Feather>
             )
@@ -32,9 +42,6 @@ class DispSongs extends React.Component {
 
     render() {
         const res = this.props.song
-        const id_playlist = this.props.id
-        const owner = this.props.owner
-        const uid = this.props.uid
         if (res.type == 'track') {
             return (
                 <TouchableOpacity style={song_css.vue} onPress={() => {
@@ -57,8 +64,9 @@ class DispSongs extends React.Component {
                         <Text style={song_css.underline}>Chanson</Text>
                     </View>
                     <Feather onPress={() => SoundPlayer.stop()} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='stop-circle' size={30} color="white"></Feather>
-                    {this._AddNav(res)}
-                    {this._DeleteSong(res, id_playlist, owner, uid)}
+                    {this._AddToPlaylist(res)}
+                    {this._AddToEvent(res)}
+                    {this._DeleteSong(res, this.props.id, this.props.owner, this.props.uid, this.props.follower, this.props.access)}
                 </TouchableOpacity>
             )
         }
