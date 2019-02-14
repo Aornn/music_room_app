@@ -3,6 +3,8 @@ import {SafeAreaView, View, Button, StyleSheet, Text, ActivityIndicator, Alert, 
 import firebase from 'react-native-firebase';
 import {TextInput, TouchableRipple} from 'react-native-paper';
 import {formatEmail, formatPwd} from "./../utils/validation";
+import FBLoginButton from "./FBLoginButton";
+import { LoginButton, AccessToken } from 'react-native-fbsdk';
 
 class Login extends React.Component {
 	constructor(props) {
@@ -97,6 +99,40 @@ class Login extends React.Component {
 						underlayColor='#fff'>
 						<Text style={styles.text_btn}>Se connecter</Text>
 					</TouchableOpacity>}
+				</View>
+				<View>
+
+					<LoginButton
+						readPermission={["email", "public_profile"]}
+						onLoginFinished={
+							(error, result) => {
+								if (error) {
+									console.log("login has error: " + error);
+								} else if (result.isCancelled) {
+									console.log("login is cancelled.");
+								} else {
+									AccessToken.getCurrentAccessToken().then(
+										(data) => {
+											console.log("TOKEN -->", data.accessToken.toString())
+											const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+											firebase.auth().signInWithCredential(credential)
+												.then((userCredentials) => {
+													console.log("CREDENTIALS --> ", userCredentials.additionalUserInfo.profile.name);
+													this.props.navigation.navigate('Main')
+												})
+												.catch((err) => {
+
+													console.log("ERROR --> ", err)
+												})
+										}
+									)
+								}
+							}
+						}
+						onLogoutFinished={() => console.log("logout.")}/>
+
+
+
 				</View>
 				<View style={{alignItems: 'center'}}>
 					<TouchableOpacity

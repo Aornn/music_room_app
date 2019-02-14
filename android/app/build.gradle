@@ -141,6 +141,7 @@ compileOptions {
 }
 
 dependencies {
+    compile project(':react-native-fbsdk')
     compile project(':react-native-track-player')
     compile project(':react-native-sound')
     compile project(':react-native-sound-player')
@@ -162,6 +163,8 @@ dependencies {
     implementation "com.google.firebase:firebase-perf:16.2.3"
     // // Cloud Firestore
     implementation "com.google.firebase:firebase-firestore:17.1.5"
+    implementation 'com.facebook.android:facebook-android-sdk:4.34.0'
+    implementation project(':react-native-fbsdk')
 }
 
 // Run this once to be able to run the application with BUCK
