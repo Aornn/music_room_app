@@ -470,3 +470,4 @@ cmake-build-*/
 # Sonarlint plugin
 .idea/sonarlint
 
+android/
