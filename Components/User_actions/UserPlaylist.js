@@ -11,18 +11,18 @@ class UserPlaylist extends React.Component {
             user: {},
             is_load: false,
             playlist: [],
-            refresh : false, 
+            refresh: false,
         }
 
     }
     _Onref = () => {
-        this.setState({refresh : true})
+        this.setState({ refresh: true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
         getUserPlaylist(user).then((p) => {
-            this.setState({ user, playlist: p, refresh : false })
+            this.setState({ user, playlist: p, refresh: false })
         })
     }
     _displayLoading() {
@@ -35,7 +35,7 @@ class UserPlaylist extends React.Component {
         }
     }
     _NavToPlaylistdetail(id) {
-        this.props.navigation.navigate('PlaylistDetailUser', { id})
+        this.props.navigation.navigate('PlaylistDetailUser', { id })
     }
     _displayPlaylist() {
         if (this.state.playlist.length > 0) {
@@ -43,17 +43,22 @@ class UserPlaylist extends React.Component {
                 <FlatList
                     data={this.state.playlist}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => 
-                    
-                    
-                    <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
-                    <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
-                </TouchableOpacity>
-}
+                    renderItem={({ item }) =>
+
+
+                        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
+                            <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
+                        </TouchableOpacity>
+                    }
                     refreshing={this.state.refresh}
                     onRefresh={this._Onref}
                 />
+            )
+        }
+        else {
+            return (
+                <Text style={{ color: 'white' }}>Oups pas de playlist</Text>
             )
         }
     }
@@ -74,11 +79,8 @@ class UserPlaylist extends React.Component {
 
             <SafeAreaView style={styles.main_container}>
                 <Appbar.Header>
-                    <Appbar.BackAction
-                        onPress={() => {
-                            console.log("if")
-                            this.props.navigation.navigate('UserProfil', { change: 0 })
-                        }}
+                    <Appbar.Content
+                        title="Playlist Privée"
                     />
                 </Appbar.Header>
                 {this._displayPlaylist()}
@@ -91,7 +93,7 @@ class UserPlaylist extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         // marginTop: 20,
     },
     manage: {
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     },
     loading_container: {
         position: 'absolute',
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         left: 0,
         right: 0,
         top: 0,

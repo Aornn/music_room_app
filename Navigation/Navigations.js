@@ -1,4 +1,5 @@
-import { createSwitchNavigator, createAppContainer, createBottomTabNavigator, createStackNavigator } from 'react-navigation'
+import { createSwitchNavigator, createAppContainer, createBottomTabNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
+import React from 'react'
 import Signup from '../Components/Signup'
 import Login from '../Components/Login'
 import Loading from '../Components/Loading'
@@ -9,15 +10,46 @@ import Event from '../Components/Event/Event'
 import EventDetail from '../Components/Event/EventDetail'
 import ModifUser from '../Components/User_actions/ModifyUserInfo'
 import CreatePlaylist from '../Components/User_actions/CreatePlaylist'
+import CreateEvent from '../Components/User_actions/CreateEvent'
 import UserPlaylist from '../Components/User_actions/UserPlaylist'
 import PlaylistDetail from '../Components/Playlist/PlaylistDetail'
 import Search from '../Components/User_actions/SearchSong'
 import AddPlaylist from '../Components/Playlist/AddPlaylist'
 import AddEvent from '../Components/Event/AddEvent'
+import { TabBar } from '../Components/TabBar/TabBar'
+
+const PlaylistPrivPub = createMaterialTopTabNavigator({
+    PlaylistPub: {
+        screen: Playlist,
+        navigationOptions: {
+            title: 'Playlist Publique'
+        }
+
+    },
+    PlaylistPriv: {
+        screen: UserPlaylist,
+        navigationOptions: {
+            title: 'Playlist Privée'
+        }
+
+    }
+},
+    {
+        tabBarOptions: {
+            indicatorStyle: '#FFFFFF',
+            activeBackgroundColor: '#000000',
+            labelStyle: {
+                fontSize: 15,
+            },
+            style: {
+                backgroundColor: 'rgb(31,32,35)'
+            }
+        }
+    })
 
 const PlaylistNav = createStackNavigator({
     Playlist: {
-        screen: Playlist,
+        screen: PlaylistPrivPub,
         navigationOptions: {
             title: 'Playlist'
         }
@@ -57,6 +89,9 @@ const UserNav = createStackNavigator({
     CreatePlaylist: {
         screen: CreatePlaylist,
     },
+    CreateEvent: {
+        screen: CreateEvent,
+    },
     Search: {
         screen: Search,
     },
@@ -64,10 +99,7 @@ const UserNav = createStackNavigator({
         screen: AddPlaylist,
     },
     AddEvent: {
-        screen : AddEvent
-    },
-    UserPlaylist: {
-        screen: UserPlaylist,
+        screen: AddEvent
     },
     PlaylistDetailUser: {
         screen: PlaylistDetail,
@@ -77,12 +109,18 @@ const UserNav = createStackNavigator({
     })
 
 
-const Music_nav = createBottomTabNavigator(
+const Music_nav = createMaterialTopTabNavigator(
     {
         Home: {
             screen: UserNav,
             navigationOptions: {
                 title: 'Bibliothèque'
+            }
+        },
+        Event: {
+            screen: EventNav,
+            navigationOptions: {
+                title: 'Evènement'
             }
         },
         Playlist: {
@@ -91,15 +129,11 @@ const Music_nav = createBottomTabNavigator(
                 title: 'Playlist'
             }
 
-        },
-        Event: {
-            screen: EventNav,
-            navigationOptions: {
-                title: 'Evènement'
-            }
         }
     },
     {
+        tabBarComponent: TabBar,
+        tabBarPosition: 'bottom',
         tabBarOptions: {
             activeBackgroundColor: '#000000',
             labelStyle: {

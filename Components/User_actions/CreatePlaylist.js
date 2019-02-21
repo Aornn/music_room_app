@@ -1,10 +1,12 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, TextInput, ActivityIndicator, Picker, Button, Alert } from 'react-native'
-import { Appbar } from 'react-native-paper';
+import { SafeAreaView, View, StyleSheet, ActivityIndicator, Alert } from 'react-native'
+import { Appbar, TextInput, Button } from 'react-native-paper';
+import { Dropdown } from 'react-native-material-dropdown';
 
 class CreatePlaylist extends React.Component {
     constructor(props) {
         super(props);
+        this.style_song = [{ value: 'jazz', }, { value: 'electro', }, { value: 'classique', }, { value: 'pop', }, { value: 'hip-hop', }, { value: 'rock', }, { value: 'chill', }, { value: 'ambiance', }, { value: 'latino', }, { value: 'affro', }, { value: 'rnb', }, { value: 'Rap', }];
         this.state = {
             user: {},
             is_load: false,
@@ -75,30 +77,31 @@ class CreatePlaylist extends React.Component {
                     />
                 </Appbar.Header>
                 <TextInput
-                    style={{ color: '#000000', borderColor:'#FFFFFF',borderWidth: 0.5, backgroundColor : '#FFFFFF'}}
-                    placeholder="Titre de la playlist"
+                    mode='flat'
+                    label="Titre de la playlist"
+                    theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+                    value={this.state.titre}
+                    style={styles.textInput}
                     onChangeText={(titre) => {
                         this.setState({ titre })
-                    }}
+                    }} />
+                <Dropdown
+                    onChangeText={(genre) => this.setState({ genre })}
+                    label='Style'
+                    labelFontSize={20}
+                    itemTextStyle={{ fontSize: 20 }}
+                    baseColor='rgba(255,255,255,1)'
+                    textColor='rgba(255,255,255,1)'
+                    selectedItemColor='rgba(0,0,0,1)'
+                    itemColor='rgba(0,0,0,1)'
+                    value='jazz'
+                    data={this.style_song}
+                    style={{ margin: 5 }}
                 />
-                <Picker style={{ color: '#000000' , borderColor:'#FFFFFF', borderWidth: 0.5, backgroundColor : '#FFFFFF'}} selectedValue={this.state.genre} onValueChange={(genre) => this.setState({ genre })}>
-                    <Picker.Item label="Jazz" value="jazz" />
-                    <Picker.Item label="Electro" value="electro" />
-                    <Picker.Item label="Classique" value="classique" />
-                    <Picker.Item label="Pop" value="pop" />
-                    <Picker.Item label="Hip-hop" value="hip-hop" />
-                    <Picker.Item label="Rock" value="rock" />
-                    <Picker.Item label="Chill" value="chill" />
-                    <Picker.Item label="Ambiance" value="ambiance" />
-                    <Picker.Item label="Latino" value="latino" />
-                    <Picker.Item label="Affro" value="affro" />
-                    <Picker.Item label="RnB" value="rnb" />
-                    <Picker.Item label="Rap" value="rap" />
-                </Picker>
-                <Button
-                    title='Créer !'
-                    onPress={() => this._CreateP()}
-                />
+
+                <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => this._CreateP()}>
+                    Valider
+                </Button>
                 {this._displayLoading()}
             </SafeAreaView>
         )
@@ -110,6 +113,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#191414',
         color: "#FFFFFF",
+    },
+    textInput: {
+        margin: 5,
+        borderRadius: 5,
+        backgroundColor: '#191414',
+        borderWidth: 1,
+        borderColor: '#FFFFFF'
+
     },
     loading_container: {
         position: 'absolute',

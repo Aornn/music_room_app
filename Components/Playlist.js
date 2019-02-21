@@ -3,7 +3,6 @@ import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, Touc
 import { getAllPublicPlaylist } from '../API/getAllPublicPlaylist'
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
-import TrackPlayer from 'react-native-track-player';
 
 class Playlist extends React.Component {
     constructor(props) {

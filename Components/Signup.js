@@ -2,13 +2,14 @@ import React from 'react'
 import {
 	SafeAreaView,
 	View,
-	TextInput,
 	StyleSheet,
 	Text,
 	ActivityIndicator,
 	Alert,
 	TouchableOpacity
 } from 'react-native'
+import {TextInput, TouchableRipple} from 'react-native-paper';
+
 import firebase from 'react-native-firebase';
 import {formatEmail, formatPseudo, formatPwd} from "./../utils/validation";
 
@@ -119,9 +120,22 @@ class Signup extends React.Component {
 		return (
 			<SafeAreaView style={styles.main_container}>
 				<Text style={styles.inscription}>Inscription</Text>
+{/* 
 				<TextInput
-					placeholder="Email"
-					placeholderTextColor="#8c8c8c"
+                    mode='flat'
+                    label="Titre de la playlist"
+                    theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+                    value={this.state.titre}
+                    style={styles.textInput}
+                    onChangeText={(titre) => {
+                        this.setState({ titre })
+                    }} /> */}
+
+				<TextInput
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+					mode='flat'
+					value={this.state.user_email}
+					label="Email"
 					keyboardType="email-address"
 					style={styles.textInput}
 					onChangeText={(text) => {
@@ -132,8 +146,10 @@ class Signup extends React.Component {
 					}}
 				/>
 				<TextInput
-					placeholder="Pseudo"
-					placeholderTextColor="#8c8c8c"
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+					mode='flat'
+					value={this.state.user_pseudo}
+					label="Pseudo"
 					style={styles.textInput}
 					onChangeText={(text) => {
 						this.setState({
@@ -143,8 +159,10 @@ class Signup extends React.Component {
 					}}
 				/>
 				<TextInput
-					placeholder="Mot de passe"
-					placeholderTextColor="#8c8c8c"
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+					mode='flat'
+					value={this.state.user_pwd}
+					label="Mot de passe"
 					secureTextEntry={true}
 					style={styles.textInput}
 					onChangeText={(value) => {
@@ -152,8 +170,10 @@ class Signup extends React.Component {
 					}}
 				/>
 				<TextInput
-					placeholder="Mot de passe confirmation"
-					placeholderTextColor="#8c8c8c"
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+					mode='flat'
+					value={this.state.conf_pwd}
+					label="Mot de passe confirmation"
 					secureTextEntry={true}
 					style={styles.textInput}
 					onChangeText={(value) => {
@@ -202,18 +222,14 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		fontSize: 18
 	},
-	textInput: {
-		marginLeft: 5,
-		marginRight: 5,
-		marginTop: 5,
-		marginBottom: 5,
-		height: 35,
-		borderColor: '#9f9f9f',
-		borderRadius: 5,
-		borderWidth: 1,
-		paddingLeft: 5,
-		color: 'white',
-	},
+	    textInput: {
+        margin: 5,
+        borderRadius: 5,
+        backgroundColor: '#191414',
+        borderWidth: 1,
+        borderColor: '#FFFFFF'
+
+    },
 	loading_container: {
 		position: 'absolute',
 		backgroundColor: '#191414',

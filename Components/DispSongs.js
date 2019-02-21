@@ -3,7 +3,9 @@ import { View, Text, Image, TouchableOpacity } from 'react-native'
 import SoundPlayer from 'react-native-sound-player'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import firebase from 'react-native-firebase';
+import TrackPlayer from 'react-native-track-player';
 
 class DispSongs extends React.Component {
 
@@ -85,13 +87,18 @@ class DispSongs extends React.Component {
         const res = this.props.song
         if (res.type == 'track') {
             return (
-                <TouchableOpacity style={song_css.vue} onPress={() => {
-                    try {
-                        SoundPlayer.playUrl(res.preview)
-                    }
-                    catch (e) {
-                        console.log('eer' + e)
-                    }
+                <TouchableOpacity style={song_css.vue} onPress={async () => {
+                    await TrackPlayer.reset()
+                    await TrackPlayer.add({
+                        id: res.id,
+                        artwork: res.album.cover_xl,
+                        url: res.preview,
+                        title: res.title_short,
+                        artist: res.artist.name,
+                        album: res.album.title,
+                    });
+
+                    TrackPlayer.play();
                 }} >
                     <Image
                         style={song_css.image}
@@ -104,7 +111,16 @@ class DispSongs extends React.Component {
                         <Text style={song_css.underline}>Chanson</Text>
                     </View>
                     {this._PlusMinus(res, this.props.event, this.props.id, this.props.uid, this.props.vote)}
-                    <Feather onPress={() => SoundPlayer.stop()} style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='stop-circle' size={30} color="white"></Feather>
+                    <MaterialIcons onPress={async () =>
+                        await TrackPlayer.add({
+                            id: res.id,
+                            artwork: res.album.cover_xl,
+                            url: res.preview,
+                            title: res.title_short,
+                            artist: res.artist.name,
+                            album: res.album.title,
+                        })
+                    } style={{ marginLeft: 10, marginTop: 5, marginRight: 5, textAlignVertical: 'center', }} name='queue-play-next' size={30} color="white"></MaterialIcons>
                     {this._AddToPlaylist(res)}
                     {this._AddToEvent(res)}
                     {this._DeleteSong(res, this.props.id, this.props.owner, this.props.uid, this.props.follower, this.props.access)}

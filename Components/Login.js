@@ -35,6 +35,7 @@ class Login extends React.Component {
 				succeed = false
 			})
 		if (succeed) {
+			
 			const user = firebase.auth().currentUser
 			if (user.emailVerified === false) {
 				this.setState({is_load: false, error: true})
@@ -73,7 +74,8 @@ class Login extends React.Component {
 				<Text style={styles.titre}>Connexion</Text>
 				<TextInput
 					keyboardType="email-address"
-					mode='outlined'
+					mode='flat'
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
 					label="Email"
 					value={user_email}
 					style={styles.textInput}
@@ -81,8 +83,9 @@ class Login extends React.Component {
 						this.setState({user_email: email, error: false})
 					}}/>
 				<TextInput
-					mode='outlined'
+					mode='flat'
 					label="Mot de passe"
+					theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
 					value={user_pwd}
 					secureTextEntry={true}
 					style={styles.textInput}
@@ -143,9 +146,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center'
 	},
-	textInput: {
-		color: 'white'
-	},
+    textInput: {
+        margin: 5,
+        borderRadius: 5,
+        backgroundColor: '#191414',
+        borderWidth: 1,
+        borderColor: '#FFFFFF'
+
+    },
 	text_btn: {
 		color: "rgb(55,128,243)",
 		textAlign: 'center',

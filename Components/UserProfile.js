@@ -7,7 +7,8 @@ import Feather from 'react-native-vector-icons/Feather';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import TrackPlayer from 'react-native-track-player';
+import TrackPlayer, { ProgressComponent } from 'react-native-track-player';
+
 
 class UserProfile extends React.Component {
     constructor(props) {
@@ -28,7 +29,7 @@ class UserProfile extends React.Component {
         }
     }
     async componentDidMount() {
-        // TrackPlayer.setupPlayer().then(async () => {
+        // TrackPlayer.setupPlayer()//.then(async () => {
 
         //     // Adds a track to the queue
         //     await TrackPlayer.add({
@@ -52,7 +53,7 @@ class UserProfile extends React.Component {
         this.setState({ user, is_load: false })
 
     }
-    componentDidUpdate() {
+    async componentDidUpdate() {
         if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change > 0) {
             this.props.navigation.state.params.change = 0
             var new_user = firebase.auth().currentUser
@@ -79,22 +80,19 @@ class UserProfile extends React.Component {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('UserPlaylist')}
-                    underlayColor='#fff'
-                    style={styles.button}>
-                    <Feather style={styles.icon} name='music' size={30} color="white" />
-                    <Text style={styles.txt_btn}>Mes playlists</Text>
-
-                </TouchableOpacity>
-
-                <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('CreatePlaylist', { user: this.state.user })}
                     underlayColor='#fff'
                     style={styles.button}>
                     <Ionicons style={styles.icon} name='md-create' size={30} color="white" />
                     <Text style={styles.txt_btn}>Créer playlist</Text>
                 </TouchableOpacity>
-
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('CreateEvent', { user: this.state.user })}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Ionicons style={styles.icon} name='md-create' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Créer Event</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('UserInfo', { user: this.state.user })}
                     underlayColor='#fff'
@@ -104,7 +102,8 @@ class UserProfile extends React.Component {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => {
+                    onPress={async () => {
+                        // await TrackPlayer.reset()
                         firebase.auth().signOut().then(() => {
                             this.props.navigation.navigate('Login')
                         })
@@ -129,14 +128,8 @@ class UserProfile extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    backgroundVideo: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-    },
     main_container: {
+        zIndex : 1,
         flex: 1,
         backgroundColor: '#191414',
 

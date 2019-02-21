@@ -7,8 +7,9 @@
  */
 
 import React, { Component } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, Text } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import Player from './Components/Player'
 import Navigation from './Navigation/Navigations'
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -23,18 +24,23 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#191414',
     accent: '#1DB954',
-    text : '#FFFFFF',
-    placeholder : '#FFFFFF',
-    backdrop : '#FFFFFF'
+    text: '#FFFFFF',
+    placeholder: '#FFFFFF',
+    backdrop: '#FFFFFF'
   }
 };
 export default class App extends React.Component {
   render() {
     return (
-      <PaperProvider theme={theme}>
-        <Navigation />
-      </PaperProvider>
+      <>
 
+
+      <PaperProvider theme={theme}>
+      
+          <Navigation />
+          {/* <Player/> */}
+      </PaperProvider>
+      </>
     )
   }
 }

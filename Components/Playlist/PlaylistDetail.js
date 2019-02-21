@@ -1,8 +1,9 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
-import { Appbar, Switch } from 'react-native-paper';
+import { Appbar, Switch, Button } from 'react-native-paper';
 import DispSongs from '../DispSongs'
+import TrackPlayer from 'react-native-track-player';
 
 class PlaylistDetail extends React.Component {
     constructor(props) {
@@ -20,8 +21,8 @@ class PlaylistDetail extends React.Component {
             switch_state: null,
             switch_state_follow: null,
             uid: '',
-            follower : [],
-            accessibility : {}
+            follower: [],
+            accessibility: {}
         }
 
     }
@@ -102,6 +103,20 @@ class PlaylistDetail extends React.Component {
             )
         }
     }
+    async _PlayAll() {
+        await TrackPlayer.reset()
+        this.state.titles.forEach(async (res) => {
+            await TrackPlayer.add({
+                id: res.id,
+                artwork: res.album.cover_xl,
+                url: res.preview,
+                title: res.title_short,
+                artist: res.artist.name,
+                album: res.album.title,
+            });
+        })
+        TrackPlayer.play();
+    }
     onUpdate = (snap) => {
         var inside_follower = false
         if (snap.exists) {
@@ -115,8 +130,8 @@ class PlaylistDetail extends React.Component {
             }
             this.setState({
                 titles: snap.data().titles, name: snap.data().Name,
-                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner, 
-                switch_state: snap.data().accessibility.public, follower : snap.data().follower, accessibility : snap.data().accessibility
+                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner,
+                switch_state: snap.data().accessibility.public, follower: snap.data().follower, accessibility: snap.data().accessibility
             })
         }
         else {
@@ -150,6 +165,9 @@ class PlaylistDetail extends React.Component {
                     <Appbar.Action icon="more-vert" onPress={this._onMore} />
                 </Appbar.Header>
                 {this._dispChangeAccess()}
+                <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => this._PlayAll()}>
+                    Lecture
+                </Button>
                 {this._dispTitles()}
                 {this._displayLoading()}
             </SafeAreaView>

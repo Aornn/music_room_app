@@ -44,13 +44,21 @@ class Event extends React.Component {
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
-        navigator.geolocation.getCurrentPosition(position => {
-            console.log(position)
-            var timestamp = Math.floor(Date.now() / 1000)
-            getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
-                this.setState({ is_load: false, user, event: data })
-            })
-        })
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log(position)
+                var timestamp = Math.floor(Date.now() / 1000)
+                getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
+                    this.setState({ is_load: false, user, event: data })
+                })
+            },
+            (error) => { 
+                console.log(error.message)
+                this.props.navigation.navigate('Home')
+            },
+            { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
+        )
     }
     render() {
         return (
