@@ -3,6 +3,7 @@ package com.music_room_app;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import com.guichaguri.trackplayer.TrackPlayer;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.johnsonsu.rnsoundplayer.RNSoundPlayerPackage;
@@ -34,6 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNGoogleSigninPackage(),
             new TrackPlayer(),
             new RNSoundPackage(),
             new RNSoundPlayerPackage(),
