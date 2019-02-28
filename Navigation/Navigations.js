@@ -14,8 +14,11 @@ import CreateEvent from '../Components/User_actions/CreateEvent'
 import UserPlaylist from '../Components/User_actions/UserPlaylist'
 import PlaylistDetail from '../Components/Playlist/PlaylistDetail'
 import Search from '../Components/User_actions/SearchSong'
+import SearchUser from '../Components/User_actions/SearchUser'
+import SearchUserProfil from '../Components/UserSearch/SearchUserProfil'
 import AddPlaylist from '../Components/Playlist/AddPlaylist'
 import AddEvent from '../Components/Event/AddEvent'
+import authDezzer from '../Components/User_actions/authDeezer'
 import { TabBar } from '../Components/TabBar/TabBar'
 
 const PlaylistPrivPub = createMaterialTopTabNavigator({
@@ -55,9 +58,12 @@ const PlaylistNav = createStackNavigator({
         }
 
     },
-    PlaylistDetailPub: {
+    PlaylistDetail: {
         screen: PlaylistDetail,
-    }
+    },
+    // PlaylistAddUser : {
+    //     screen : PlaylistAddUser
+    // }
 },
     {
         headerMode: 'none'
@@ -95,15 +101,24 @@ const UserNav = createStackNavigator({
     Search: {
         screen: Search,
     },
+    SearchUser: {
+        screen: SearchUser,
+    },
+    SearchUserProfil : {
+        screen : SearchUserProfil
+    },
     AddPlaylist: {
         screen: AddPlaylist,
     },
     AddEvent: {
         screen: AddEvent
     },
-    PlaylistDetailUser: {
+    AuthDezzer :{
+        screen : authDezzer
+    },
+    PlaylistDetailSearchUser: {
         screen: PlaylistDetail,
-    }
+    },
 }, {
         headerMode: 'none'
     })

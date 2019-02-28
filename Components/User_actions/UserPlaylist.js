@@ -35,7 +35,7 @@ class UserPlaylist extends React.Component {
         }
     }
     _NavToPlaylistdetail(id) {
-        this.props.navigation.navigate('PlaylistDetailUser', { id })
+        this.props.navigation.navigate('PlaylistDetail', { id })
     }
     _displayPlaylist() {
         if (this.state.playlist.length > 0) {

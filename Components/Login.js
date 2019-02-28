@@ -1,8 +1,8 @@
 import React from 'react'
-import {SafeAreaView, View, Button, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity} from 'react-native'
+import { SafeAreaView, View, Button, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native'
 import firebase from 'react-native-firebase';
-import {TextInput, TouchableRipple} from 'react-native-paper';
-import {formatEmail, formatPwd} from "./../utils/validation";
+import { TextInput } from 'react-native-paper';
+import { formatEmail, formatPwd } from "./../utils/validation";
 
 class Login extends React.Component {
 	constructor(props) {
@@ -19,26 +19,27 @@ class Login extends React.Component {
 		if (this.state.is_load) {
 			return (
 				<View style={styles.loading_container}>
-					<ActivityIndicator size='large'/>
+					<ActivityIndicator size='large' />
 				</View>
 			)
 		}
 	}
 
+
 	async _login() {
-		const {user_email, user_pwd} = this.state
+		const { user_email, user_pwd } = this.state
 		let succeed = true
-		this.setState({is_load: true})
+		this.setState({ is_load: true })
 		console.log("Email : " + user_email + "| mdp : " + user_pwd)
 		await firebase.auth().signInWithEmailAndPassword(user_email.trim(), user_pwd.trim())
 			.catch(() => {
 				succeed = false
 			})
 		if (succeed) {
-			
+
 			const user = firebase.auth().currentUser
 			if (user.emailVerified === false) {
-				this.setState({is_load: false, error: true})
+				this.setState({ is_load: false, error: true })
 				Alert.alert("OUPS", "Votre email n'est pas valide vous devez le valider",
 					[{
 						text: "OK", onPress: async () => {
@@ -46,14 +47,14 @@ class Login extends React.Component {
 							this.props.navigation.navigate('Login')
 						}
 					}],
-					{cancelable: false})
+					{ cancelable: false })
 			}
 			else {
 				this.props.navigation.navigate('Main')
 			}
 		}
 		else {
-			this.setState({is_load: false, error: true,})
+			this.setState({ is_load: false, error: true, })
 			Alert.alert("OUPS", "Mauvaise combinaison Email et mot de passe",
 				[
 					{
@@ -62,12 +63,11 @@ class Login extends React.Component {
 						}
 					}
 				],
-				{cancelable: false})
+				{ cancelable: false })
 		}
 	}
-
 	render() {
-		const {user_email, user_pwd} = this.state
+		const { user_email, user_pwd } = this.state
 		const showLoginButton = formatPwd.test(user_pwd) && formatEmail.test(user_email) && !this.state.error
 		return (
 			<SafeAreaView style={styles.main_container}>
@@ -80,8 +80,8 @@ class Login extends React.Component {
 					value={user_email}
 					style={styles.textInput}
 					onChangeText={(email) => {
-						this.setState({user_email: email, error: false})
-					}}/>
+						this.setState({ user_email: email, error: false })
+					}} />
 				<TextInput
 					mode='flat'
 					label="Mot de passe"
@@ -90,9 +90,10 @@ class Login extends React.Component {
 					secureTextEntry={true}
 					style={styles.textInput}
 					onChangeText={(pwd) => {
-						this.setState({user_pwd: pwd, error: false})
-					}}/>
-				<View style={{alignItems: 'center', flexGrow: 1}}>
+						this.setState({ user_pwd: pwd, error: false })
+					}} />
+
+				<View style={{ alignItems: 'center', flexGrow: 1 }}>
 					{showLoginButton && <TouchableOpacity
 						style={styles.buttonHighlight}
 						activeOpacity={1}
@@ -101,19 +102,21 @@ class Login extends React.Component {
 						<Text style={styles.text_btn}>Se connecter</Text>
 					</TouchableOpacity>}
 				</View>
-				<View style={{alignItems: 'center'}}>
+				<View style={{ alignItems: 'center' }}>
 					<TouchableOpacity
 						style={styles.button}
 						onPress={() => this.props.navigation.navigate('Signup')}
 						underlayColor='#fff'>
 						<Text style={styles.text_btn}>S'inscrire</Text>
 					</TouchableOpacity>
+
 					<TouchableOpacity
 						style={styles.button}
 						onPress={() => this.props.navigation.navigate('ForgotPwd')}
 						underlayColor='#fff'>
 						<Text style={styles.text_btn}>Mot de passe oublié</Text>
 					</TouchableOpacity>
+
 				</View>
 				{this._displayLoading()}
 			</SafeAreaView>
@@ -146,14 +149,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center'
 	},
-    textInput: {
-        margin: 5,
-        borderRadius: 5,
-        backgroundColor: '#191414',
-        borderWidth: 1,
-        borderColor: '#FFFFFF'
+	textInput: {
+		margin: 5,
+		borderRadius: 5,
+		backgroundColor: '#191414',
+		borderWidth: 1,
+		borderColor: '#FFFFFF'
 
-    },
+	},
 	text_btn: {
 		color: "rgb(55,128,243)",
 		textAlign: 'center',

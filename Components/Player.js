@@ -29,18 +29,26 @@ class Player extends React.Component {
 
     }
 
-    componentDidMount() {
-        TrackPlayer.setupPlayer()
+    async componentDidMount() {
+        await TrackPlayer.setupPlayer()
+        TrackPlayer.updateOptions({
+            stopWithApp: true
+        });
         TrackPlayer.addEventListener('playback-track-changed', async (data) => {
             let track = await TrackPlayer.getTrack(data.nextTrack);
             let player_state = await TrackPlayer.getState()
             if (track !== null) {
-                this.setState({ track, player_state, visible: true});
+                this.setState({ track, player_state, visible: true });
             }
         });
         TrackPlayer.addEventListener('playback-state', async (data) => {
-            if (data.state == STATE_STOPPED)
-            {
+            if (data.state == STATE_PAUSED) {
+                this.setState({ pause: false })
+            }
+            if (data.state == STATE_PLAYING) {
+                this.setState({ pause: true })
+            }
+            if (data.state == STATE_STOPPED) {
                 console.log('stop : ' + data.state)
             }
         });
@@ -48,7 +56,7 @@ class Player extends React.Component {
     }
     render() {
         return (
-            <View style={{height: 70, backgroundColor: 'rgb(18,18,18)', padding: 5, flexDirection: 'row' }}>
+            <View style={{ height: 70, backgroundColor: 'rgb(18,18,18)', padding: 5, flexDirection: 'row' }}>
                 <View style={{ width: '70%', flexWrap: 'nowrap', paddingLeft: 5, alignItems: 'center' }}>
                     <Text style={{ color: '#FFFFFF', }}>{this.state.track.title}</Text>
                     <Text style={{ color: '#FFFFFF', }}>{this.state.track.artist}</Text>
@@ -65,14 +73,14 @@ class Player extends React.Component {
                     {this.state.visible && !this.state.pause &&
                         <AntDesign name='play' style={{ padding: 5 }} size={30} color="white" onPress={() => {
                             TrackPlayer.play()
-                            this.setState({ pause: true })
+                            // this.setState({ pause: true })
                         }} />
                     }
                     {this.state.visible && this.state.pause &&
                         <AntDesign name='pausecircleo' style={{ padding: 5 }} size={30} color="white" onPress={async () => {
                             if (await TrackPlayer.getState() === STATE_PLAYING) {
                                 TrackPlayer.pause()
-                                this.setState({ pause: false })
+                                // this.setState({ pause: false })
                             }
                         }} />
                     }

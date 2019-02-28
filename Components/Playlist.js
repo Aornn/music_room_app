@@ -36,7 +36,7 @@ class Playlist extends React.Component {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) =>
                     <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => {
-                        this.props.navigation.navigate('PlaylistDetailPub', { id : item.id })
+                        this.props.navigation.navigate('PlaylistDetail', { id : item.id })
                     }}>
                         <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
                         <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>

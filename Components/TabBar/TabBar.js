@@ -11,8 +11,8 @@ export class TabBar extends Component {
             <View style={{ backgroundColor: 'rgb(18,18,18)' }}>
                 <Player />
                 <View style={styles.main_container}>
-                    <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home') }}><Text style={styles.text}>Home</Text></TouchableOpacity>
-                    <TouchableOpacity onPress={() => { this.props.navigation.navigate('Event') }}><Text style={styles.text}>Event</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home') }}><Text style={styles.text}>Accueil</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => { this.props.navigation.navigate('Event') }}><Text style={styles.text}>Evénement</Text></TouchableOpacity>
                     <TouchableOpacity onPress={() => { this.props.navigation.navigate('Playlist') }}><Text style={styles.text}>Playlist</Text></TouchableOpacity>
                 </View>
             </View>
@@ -22,9 +22,9 @@ export class TabBar extends Component {
 
 const styles = StyleSheet.create({
     main_container: {
-        flexDirection: 'row',
         color: '#FFFFFF',
         backgroundColor: 'rgb(31,32,35)',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
         // textAlign: 'center',
         paddingTop: 10,
         paddingBottom: 10,
-        paddingLeft: 5,
-        paddingRight: 5,
+        paddingLeft: 20,
+        paddingRight: 20,
         color: '#FFFFFF',
         fontSize: 20,
     },

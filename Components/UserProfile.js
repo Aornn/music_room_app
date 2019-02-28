@@ -8,6 +8,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import TrackPlayer, { ProgressComponent } from 'react-native-track-player';
+import { GoogleSignin } from 'react-native-google-signin';
 
 
 class UserProfile extends React.Component {
@@ -16,6 +17,7 @@ class UserProfile extends React.Component {
         this.state = {
             user: {},
             is_load: false,
+            refresh : false,
         }
 
     }
@@ -28,27 +30,14 @@ class UserProfile extends React.Component {
             )
         }
     }
-    async componentDidMount() {
-        // TrackPlayer.setupPlayer()//.then(async () => {
 
-        //     // Adds a track to the queue
-        //     await TrackPlayer.add({
-        //         id: 'trackId',
-        //         url: 'https://cdns-preview-d.dzcdn.net/stream/c-deda7fa9316d9e9e880d2c6207e92260-5.mp3',
-        //         title: 'Avaritia',
-        //         artist: 'deadmau5',
-        //         album: 'while(1<2)',
-        //         genre: 'Progressive House, Electro House',
-        //         date: '2014-05-20T07:00:00+00:00',
-        //     });
-        //     // Starts playing it
-        //     TrackPlayer.play();
-        // });
+    async componentDidMount() {
         this.setState({ is_load: true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
         }
+        console.log(user)
 
         this.setState({ user, is_load: false })
 
@@ -78,7 +67,14 @@ class UserProfile extends React.Component {
                     <Text style={styles.txt_btn}>Chercher musiques</Text>
 
                 </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('SearchUser', { user: this.state.user })}
+                    underlayColor='#fff'
+                    style={styles.button}>
+                    <Feather style={styles.icon} name='search' size={30} color="white" />
+                    <Text style={styles.txt_btn}>Chercher Utilisateur</Text>
 
+                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('CreatePlaylist', { user: this.state.user })}
                     underlayColor='#fff'
@@ -103,8 +99,13 @@ class UserProfile extends React.Component {
 
                 <TouchableOpacity
                     onPress={async () => {
-                        // await TrackPlayer.reset()
-                        firebase.auth().signOut().then(() => {
+                        await TrackPlayer.reset()
+                        firebase.auth().signOut().then( async () => {
+                            try {
+                                await GoogleSignin.revokeAccess();
+                                await GoogleSignin.signOut();
+                            }
+                            catch{}
                             this.props.navigation.navigate('Login')
                         })
                     }}
@@ -129,7 +130,7 @@ class UserProfile extends React.Component {
 
 const styles = StyleSheet.create({
     main_container: {
-        zIndex : 1,
+        zIndex: 1,
         flex: 1,
         backgroundColor: '#191414',
 

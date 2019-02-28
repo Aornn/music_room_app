@@ -1,5 +1,5 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native'
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, TouchableOpacity, Alert } from 'react-native'
 import { getAllPublicEvent } from '../../API/getAllPublicEvent'
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
@@ -10,7 +10,8 @@ class Event extends React.Component {
         this.state = {
             user: {},
             event: [],
-            is_load: true
+            is_load: true,
+            refresh : false
         }
 
     }
@@ -22,6 +23,37 @@ class Event extends React.Component {
                 </View>
             )
         }
+    }
+
+    _Onref = () => {
+        console.log("onref")
+        this.setState({ refresh: true, is_load : true })
+        var user = firebase.auth().currentUser
+        if (user === null) {
+            this.props.navigation.navigate('Signup')
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log(position)
+                var timestamp = Math.floor(Date.now() / 1000)
+                getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
+                    this.setState({ is_load: false, user, event: data, refresh : false })
+                })
+            },
+            (error) => { 
+                Alert.alert("OK !", error.message,
+                [
+                    {
+                        text: "OK", onPress:() => {
+                            firebase.auth().signOut().then(() => {
+                                this.props.navigation.navigate('Login')
+                            })
+                        }
+                    }
+                ])
+            },
+            { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
+        )
     }
     _displayEvent() {
         return (
@@ -36,6 +68,8 @@ class Event extends React.Component {
                         <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres • {item.genre}</Text>
                     </TouchableOpacity>
                 }
+                refreshing={this.state.refresh}
+                onRefresh={this._Onref}
             />
         )
     }
@@ -53,9 +87,17 @@ class Event extends React.Component {
                     this.setState({ is_load: false, user, event: data })
                 })
             },
-            (error) => { 
-                console.log(error.message)
-                this.props.navigation.navigate('Home')
+            (error) => {
+                Alert.alert("OK !", error.message,
+                [
+                    {
+                        text: "OK", onPress:() => {
+                            firebase.auth().signOut().then(() => {
+                                this.props.navigation.navigate('Login')
+                            })
+                        }
+                    }
+                ])
             },
             { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
         )

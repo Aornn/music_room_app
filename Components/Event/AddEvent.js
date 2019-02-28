@@ -23,7 +23,7 @@ class AddEvent extends React.Component {
             )
         }
     }
-    _addPlaylist(id) {
+    _addEvent(id) {
         console.log(id)
         const song = this.props.navigation.state.params.song
         this.ref.doc(id).update({
@@ -32,7 +32,7 @@ class AddEvent extends React.Component {
                     // vote : 0,
                     ...song,
                     // voteID : [],
-                    in_Event: true,
+                    // in_Event: true,
                 }
             )
         }).then(() => {
@@ -45,6 +45,8 @@ class AddEvent extends React.Component {
             this.props.navigation.navigate('Signup')
         }
         let playlist = []
+        let curr_timestamp =  Math.floor(Date.now() / 1000)
+        console.log('calc timestamp : '+ curr_timestamp)
         const res = await this.ref.where('follower', 'array-contains', user._user.uid).get()
         res.forEach(elem => {
             playlist.push({
@@ -68,7 +70,7 @@ class AddEvent extends React.Component {
                     data={this.state.playlist}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) =>
-                        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._addPlaylist(item.id)}>
+                        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._addEvent(item.id)}>
                             <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
                             <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.nb_titles} titres</Text>
                         </TouchableOpacity>}

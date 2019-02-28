@@ -32,7 +32,7 @@ class AddPlaylist extends React.Component {
             titles: firebase.firestore.FieldValue.arrayUnion(
                 {
                     ...song,
-                    in_Playlist: true,
+                    // in_Playlist: true,
                 }
             )
         }).then(() => {

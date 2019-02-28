@@ -1,9 +1,11 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, Alert } from 'react-native'
 import firebase from 'react-native-firebase';
 import { Appbar, Switch, Button } from 'react-native-paper';
+import { addUserInPlaylist } from '../../API/addUserInPlaylist'
 import DispSongs from '../DispSongs'
 import TrackPlayer from 'react-native-track-player';
+import DialogInput from 'react-native-dialog-input';
 
 class PlaylistDetail extends React.Component {
     constructor(props) {
@@ -12,6 +14,7 @@ class PlaylistDetail extends React.Component {
         this.sub = null
         this.state = {
             id: this.props.navigation.state.params.id,
+            isDialogVisible: false,
             user: {},
             owner: '',
             is_load: false,
@@ -162,9 +165,31 @@ class PlaylistDetail extends React.Component {
                         title={this.state.name}
                         subtitle={this.state.creator_name}
                     />
-                    <Appbar.Action icon="more-vert" onPress={this._onMore} />
                 </Appbar.Header>
                 {this._dispChangeAccess()}
+                <DialogInput isDialogVisible={this.state.isDialogVisible}
+                    title={"Ajouter utilisateur dans la Playlist"}
+                    message={"Veuillez entrez son adresse mail : "}
+                    submitInput={(inputText) => {
+                        this.setState({ isDialogVisible: false, is_load : true })
+                        addUserInPlaylist(this.state.user, this.state.id, inputText).then((response) => {
+                            this.setState({is_load : false})
+                            Alert.alert("OK !", response._bodyText,
+                                [
+                                    {
+                                        text: "OK"
+                                    }
+                                ])
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                    }}
+                    closeDialog={() => { this.setState({ isDialogVisible: false }) }}>
+                </DialogInput>
+                <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => {
+                    this.setState({ isDialogVisible: true })
+                }}>Ajouter dans la playlist</Button>
+
                 <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => this._PlayAll()}>
                     Lecture
                 </Button>

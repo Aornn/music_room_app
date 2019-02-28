@@ -41,7 +41,7 @@ class EventDetail extends React.Component {
     }
     _compare = (arr, vote) => {
         for (var key in arr) {
-            if(vote[arr[key].id] !== undefined)
+            if(arr[key].id !== undefined && vote[arr[key].id] !== undefined)
             {
                 arr[key].nb_vote = vote[arr[key].id].length
             }

@@ -1,18 +1,60 @@
 import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, Button } from 'react-native'
-import { Appbar,TextInput } from 'react-native-paper';
+import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, Alert, TouchableOpacity } from 'react-native'
+import { Appbar, TextInput, Checkbox, Button } from 'react-native-paper';
+import firebase from 'react-native-firebase';
+import { GoogleSignin } from 'react-native-google-signin';
 
 class ModifUser extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            res: [],
+            is_link: true,
+            friends_name: '',
             user: {},
-            is_load: false,
+            is_load: true,
             new_pseudo: '',
             new_email: '',
-
+            jazz: false,
+            electro: false,
+            classique: false,
+            pop: false,
+            hip_hop: false,
+            rock: false,
+            chill: false,
+            ambiance: false,
+            latino: false,
+            affro: false,
+            rnb: false,
+            rap: false,
         }
 
+    }
+    async _LinkGoogle() {
+        await GoogleSignin.configure();
+        var data = undefined
+        try {
+            data = await GoogleSignin.signIn();
+        } catch{}
+        if (data !== undefined)
+        {
+            const credential = await firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+            firebase.auth().currentUser.linkWithCredential(credential)
+                .then((res) => console.log(res))
+                .catch(async err => {
+                    try {
+                        await GoogleSignin.revokeAccess();
+                        await GoogleSignin.signOut();
+                    }
+                    catch{ }
+                    Alert.alert("OUPS", err.message,
+                        [
+                            {
+                                text: "OK"
+                            }
+                        ])
+                })
+        }
     }
     _displayLoading() {
         if (this.state.is_load) {
@@ -23,59 +65,266 @@ class ModifUser extends React.Component {
             )
         }
     }
-    componentDidMount() {
-        this.setState({ user: this.props.navigation.state.params.user })
+    _displayDeezerButton() {
+        if (this.state.is_link === false) {
+            return (
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => this.props.navigation.navigate('AuthDezzer')}
+                    underlayColor='#fff'>
+                    <Text style={styles.inscription_but}>Associer à deezer</Text>
+                </TouchableOpacity>
+            )
+        }
+        else {
+            return (
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={async () => {
+                        await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).update({
+                            is_link_to_deezer: false
+                        })
+                        this.setState({ is_link: false })
+                    }}
+                    underlayColor='#fff'>
+                    <Text style={styles.inscription_but}>Dissocier de deezer</Text>
+                </TouchableOpacity>
+            )
+        }
+    }
+    async componentDidMount() {
+        console.log(this.props.navigation.state.params.user.uid)
+        let resu = await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).get()
+        pref_music = resu.data().pref_music
+        is_link = resu.data().is_link_to_deezer ? true : false
+        pref_music.forEach(element => {
+            this.setState({ [element]: true })
+        });
+        this.setState({ user: this.props.navigation.state.params.user, res: pref_music, is_load: false, is_link })
+
     }
     async _updateUserInfos() {
         var change = 0;
         this.setState({ is_load: true })
-        if ((this.state.new_pseudo !== this.state.user.displayName) || (this.state.new_email !== this.state.user.email)) {
+        if ((this.state.new_pseudo !== this.state.user.displayName)) {
             if (this.state.new_pseudo.length > 0) {
                 await this.state.user.updateProfile({
                     displayName: this.state.new_pseudo
                 })
                     .then(() => { change = 1 })
             }
-            if (this.state.new_email.length > 0) {
-                await this.state.user.updateEmail(this.state.new_email)
-                    .then(() => {
-                        change = 2
-                    })
-                    .catch((err) => {
-                        console.log(err.message)
-                    })
-            }
-            console.log("ModifyUserinfo change : " + change)
-            this.props.navigation.navigate('UserProfil', { change })
         }
+        await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).update({
+            pref_music: this.state.res
+        })
+        this.props.navigation.navigate('UserProfil', { change })
     }
     render() {
+        const { displayName } = this.state
         return (
             <SafeAreaView style={styles.main_container}>
                 <Appbar.Header>
                     <Appbar.BackAction
-                        onPress={() => this.props.navigation.navigate('UserProfil')} // peut etre ajouter { change: 1 }
+                        onPress={() => this.props.navigation.navigate('UserProfil')}
                     />
                     <Appbar.Content
                         title="Modifier Compte"
                     />
                 </Appbar.Header>
+                <Text style={styles.titre}>Changer de Pseudo : </Text>
                 <TextInput
-                    placeholder={this.state.user.displayName}
-                    onChangeText={(new_pseudo) => { this.setState({ new_pseudo }) }}
-                />
-                <TextInput
-                    placeholder={this.state.user.email}
-                    onChangeText={(new_email) => { this.setState({ new_email }) }}
+                    mode='flat'
+                    theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
+                    label="Pseudo"
+                    value={displayName}
+                    style={styles.textInput}
+                    onChangeText={(text) => {
+                        this.setState({ displayName: text, error: false })
+                    }} />
+                <Text style={styles.titre}>Mes Préférences musicales : </Text>
+                <View style={{
+                    flexWrap: 'wrap',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={styles.text}>Jazz</Text>
+                    <Checkbox
+                        status={this.state.jazz ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.jazz) {
 
-                />
-                <Text>Attention modifier votre adresse mail vous deconnectera</Text>
-                <Button
-                    title='Mettre à jour mes infos'
-                    onPress={() => this._updateUserInfos()}
-                />
+                                const index = this.state.res.indexOf('jazz')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('jazz')
+                            }
+                            this.setState({ jazz: !this.state.jazz });
+                        }}
+                    />
+                    <Text style={styles.text}>Electro</Text><Checkbox
+                        status={this.state.electro ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.electro) {
+
+                                const index = this.state.res.indexOf('electro')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('electro')
+                            } this.setState({ electro: !this.state.electro });
+                        }}
+                    />
+                    <Text style={styles.text}>Classique</Text><Checkbox
+                        status={this.state.classique ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.classique) {
+
+                                const index = this.state.res.indexOf('classique')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('classique')
+                            } this.setState({ classique: !this.state.classique });
+                        }}
+                    />
+                    <Text style={styles.text}>Pop</Text><Checkbox
+                        status={this.state.pop ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.pop) {
+
+                                const index = this.state.res.indexOf('pop')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('pop')
+                            } this.setState({ pop: !this.state.pop });
+                        }}
+                    />
+                    <Text style={styles.text}>Hip-Hop</Text><Checkbox
+                        status={this.state.hip_hop ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.hip_hop) {
+
+                                const index = this.state.res.indexOf('hip_hop')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('hip_hop')
+                            } this.setState({ hip_hop: !this.state.hip_hop });
+                        }}
+                    />
+                    <Text style={styles.text}>Rock</Text><Checkbox
+                        status={this.state.rock ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.rock) {
+
+                                const index = this.state.res.indexOf('rock')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('rock')
+                            } this.setState({ rock: !this.state.rock });
+                        }}
+                    />
+                    <Text style={styles.text}>Chill</Text><Checkbox
+                        status={this.state.chill ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.chill) {
+
+                                const index = this.state.res.indexOf('chill')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('chill')
+                            } this.setState({ chill: !this.state.chill });
+                        }}
+                    />
+                    <Text style={styles.text}>Ambiance</Text><Checkbox
+                        status={this.state.ambiance ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.ambiance) {
+
+                                const index = this.state.res.indexOf('ambiance')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('ambiance')
+                            } this.setState({ ambiance: !this.state.ambiance });
+                        }}
+                    />
+                    <Text style={styles.text}>Latino</Text><Checkbox
+                        status={this.state.latino ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.latino) {
+
+                                const index = this.state.res.indexOf('latino')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('latino')
+                            } this.setState({ latino: !this.state.latino });
+                        }}
+                    />
+                    <Text style={styles.text}>Affro</Text><Checkbox
+                        status={this.state.affro ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.affro) {
+
+                                const index = this.state.res.indexOf('affro')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('affro')
+                            } this.setState({ affro: !this.state.affro });
+                        }}
+                    />
+                    <Text style={styles.text}>RnB</Text><Checkbox
+                        status={this.state.rnb ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.rnb) {
+
+                                const index = this.state.res.indexOf('rnb')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('rnb')
+                            } this.setState({ rnb: !this.state.rnb });
+                        }}
+                    />
+                    <Text style={styles.text}>Rap</Text><Checkbox
+                        status={this.state.rap ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            if (this.state.rap) {
+
+                                const index = this.state.res.indexOf('rap')
+                                this.state.res.splice(index, 1)
+                            }
+                            else {
+                                this.state.res.push('rap')
+                            } this.setState({ rap: !this.state.rap });
+                        }}
+                    />
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                    {this._displayDeezerButton()}
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => this._LinkGoogle()}
+                        underlayColor='#fff'>
+                        <Text style={styles.inscription_but}>Associer Google</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => this._updateUserInfos()}
+                        underlayColor='#fff'>
+                        <Text style={styles.inscription_but}>Valider</Text>
+                    </TouchableOpacity>
+                </View>
                 {this._displayLoading()}
-            </SafeAreaView>
+            </SafeAreaView >
         )
     }
 }
@@ -83,17 +332,52 @@ class ModifUser extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
     },
     loading_container: {
+        zIndex: 10,
         position: 'absolute',
-        backgroundColor : '#191414',
+        backgroundColor: '#191414',
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    textInput: {
+        margin: 5,
+        borderRadius: 5,
+        backgroundColor: '#191414',
+        borderWidth: 1,
+        borderColor: '#FFFFFF'
+
+    },
+    titre: {
+        padding: 5,
+        color: '#FFFFFF',
+        fontSize: 20,
+    },
+    text: {
+        paddingTop: 5,
+        color: '#FFFFFF',
+        fontSize: 15,
+    },
+    button: {
+        height: 50,
+        width: 300,
+        marginTop: 20,
+        backgroundColor: '#191414',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#FFFFFF',
+        borderRadius: 5,
+    },
+    inscription_but: {
+        color: "#FFFFFF",
+        textAlign: 'center',
+        fontSize: 18
     }
 })
 
