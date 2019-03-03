@@ -1,6 +1,6 @@
 import React from 'react'
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import TrackPlayer, { ProgressComponent, STATE_PLAYING, STATE_PAUSED, CAPABILITY_SKIP_TO_NEXT, STATE_STOPPED, STATE_NONE } from 'react-native-track-player';
+import { View, StyleSheet, Text, Image } from 'react-native'
+import TrackPlayer, { ProgressComponent, STATE_PLAYING, STATE_PAUSED, STATE_STOPPED} from 'react-native-track-player';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Foundation from 'react-native-vector-icons/Foundation'
 
@@ -56,12 +56,16 @@ class Player extends React.Component {
     }
     render() {
         return (
-            <View style={{ height: 70, backgroundColor: 'rgb(18,18,18)', padding: 5, flexDirection: 'row' }}>
-                <View style={{ width: '70%', flexWrap: 'nowrap', paddingLeft: 5, alignItems: 'center' }}>
-                    <Text style={{ color: '#FFFFFF', }}>{this.state.track.title}</Text>
-                    <Text style={{ color: '#FFFFFF', }}>{this.state.track.artist}</Text>
+            <View style={{ height: 70, backgroundColor: 'rgb(18,18,18)', padding: 5, flexDirection: 'row'}}>
+                <Image
+                    style={{ width: 50, height: 50, paddingTop :5, paddingBottom :5, paddingLeft : 10, paddingRight: 10  }}
+                    source={{ uri: this.state.track.artwork }}
+                />
+                <View style={{ flex: 2, flexWrap: 'nowrap', paddingLeft: 5, alignItems: 'center' }}>
+                    <Text numberOfLines={1} style={{ color: '#FFFFFF', textAlign : 'center', fontWeight: 'bold', fontSize : 20,} }>{this.state.track.title}</Text>
+                    <Text numberOfLines={1} style={{ color: '#FFFFFF', }}>{this.state.track.artist}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flex : 1, flexDirection: 'row', alignItems: 'center' }}>
                     <Foundation name='previous' style={{ padding: 5, }} size={30} color="white" onPress={async () => {
                         try {
                             await TrackPlayer.skipToPrevious()

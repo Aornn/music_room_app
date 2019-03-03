@@ -39,8 +39,15 @@ class ModifUser extends React.Component {
         if (data !== undefined)
         {
             const credential = await firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
-            firebase.auth().currentUser.linkWithCredential(credential)
-                .then((res) => console.log(res))
+			const user = await firebase.auth().currentUser
+            user.linkWithCredential(credential)
+                .then(async (res) => 
+                {
+						await firebase.firestore().collection('users').doc(user._user.uid).update({
+							is_linked_to_google : true
+                        })
+
+                })
                 .catch(async err => {
                     try {
                         await GoogleSignin.revokeAccess();
@@ -82,7 +89,7 @@ class ModifUser extends React.Component {
                     style={styles.button}
                     onPress={async () => {
                         await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).update({
-                            is_link_to_deezer: false
+                            is_linked_to_deezer: false
                         })
                         this.setState({ is_link: false })
                     }}
@@ -96,7 +103,7 @@ class ModifUser extends React.Component {
         console.log(this.props.navigation.state.params.user.uid)
         let resu = await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).get()
         pref_music = resu.data().pref_music
-        is_link = resu.data().is_link_to_deezer ? true : false
+        is_link = resu.data().is_linked_to_deezer ? true : false
         pref_music.forEach(element => {
             this.setState({ [element]: true })
         });

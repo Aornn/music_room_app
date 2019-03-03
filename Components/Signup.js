@@ -55,7 +55,9 @@ class Signup extends React.Component {
 							displayName: user._user.displayName,
 							friends: [],
 							pref_music: [],
-							is_link_to_deezer: false
+							is_linked_to_google : true, 
+							is_linked_to_facebook: false,
+							is_linked_to_deezer: false
 						})
 						await firebase.firestore().collection('hash_users').doc(user._user.email).set({
 							uid: user._user.uid

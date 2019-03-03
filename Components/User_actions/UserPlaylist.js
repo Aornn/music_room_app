@@ -42,10 +42,9 @@ class UserPlaylist extends React.Component {
             return (
                 <FlatList
                     data={this.state.playlist}
+                    extraData={this.state}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) =>
-
-
                         <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
                             <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
                             <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
@@ -60,6 +59,14 @@ class UserPlaylist extends React.Component {
             return (
                 <Text style={{ color: 'white' }}>Oups pas de playlist</Text>
             )
+        }
+    }
+    componentDidUpdate() {
+        if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.need_update == 1) {
+            var indexOfPlaylist = this.state.playlist.findIndex(item => item.id === this.props.navigation.state.params.id);
+            this.state.playlist.splice(indexOfPlaylist, 1);
+            this.setState({ playlist: this.state.playlist })
+            this.props.navigation.state.params.need_update = 0
         }
     }
     componentDidMount() {

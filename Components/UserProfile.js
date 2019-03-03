@@ -38,9 +38,7 @@ class UserProfile extends React.Component {
             this.props.navigation.navigate('Signup')
         }
         console.log(user)
-
         this.setState({ user, is_load: false })
-
     }
     async componentDidUpdate() {
         if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change > 0) {
@@ -99,6 +97,7 @@ class UserProfile extends React.Component {
 
                 <TouchableOpacity
                     onPress={async () => {
+                        await TrackPlayer.stop()
                         await TrackPlayer.reset()
                         firebase.auth().signOut().then( async () => {
                             try {

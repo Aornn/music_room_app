@@ -3,7 +3,7 @@ import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, Aler
 import firebase from 'react-native-firebase';
 import { Appbar, Switch, Button } from 'react-native-paper';
 import { addUserInPlaylist } from '../../API/addUserInPlaylist'
-import DispSongs from '../DispSongs'
+import DispSongsPlaylist from './DispSongsPlaylist'
 import TrackPlayer from 'react-native-track-player';
 import DialogInput from 'react-native-dialog-input';
 
@@ -47,7 +47,7 @@ class PlaylistDetail extends React.Component {
                     data={this.state.titles}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) =>
-                        <DispSongs song={item} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
+                        <DispSongsPlaylist song={item} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
                     }
                 />
             )
@@ -120,22 +120,32 @@ class PlaylistDetail extends React.Component {
         })
         TrackPlayer.play();
     }
-    onUpdate = (snap) => {
+    onUpdate = async (snap) => {
         var inside_follower = false
         if (snap.exists) {
-            if (this.state.switch_state_follow === null) {
-                snap.data().follower.forEach(element => {
-                    if (element === this.state.uid) {
-                        inside_follower = true
-                    }
-                });
-                this.setState({ switch_state_follow: inside_follower })
+            if (snap.data().accessibility.public === false && !snap.data().follower.includes(this.state.uid)) {
+                console.log('plus dedans')
+                await TrackPlayer.pause()     
+                await TrackPlayer.removeUpcomingTracks()                
+                this.props.navigation.navigate('PlaylistPriv', {need_update :  1, id : this.state.id});
             }
-            this.setState({
-                titles: snap.data().titles, name: snap.data().Name,
-                creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner,
-                switch_state: snap.data().accessibility.public, follower: snap.data().follower, accessibility: snap.data().accessibility
-            })
+            else
+            {
+                if (this.state.switch_state_follow === null) {
+                    snap.data().follower.forEach(element => {
+                        if (element === this.state.uid) {
+                            inside_follower = true
+                        }
+                    });
+                    this.setState({ switch_state_follow: inside_follower })
+                }
+                this.setState({
+                    titles: snap.data().titles, name: snap.data().Name,
+                    creator_name: "Par " + snap.data().creator_name, is_load: false, owner: snap.data().owner,
+                    switch_state: snap.data().accessibility.public, follower: snap.data().follower, accessibility: snap.data().accessibility
+                })
+            }
+
         }
         else {
             this.props.navigation.goBack()
@@ -151,6 +161,16 @@ class PlaylistDetail extends React.Component {
     }
     componentWillUnmount() {
         this.sub()
+    }
+    _addInPlaylist() {
+        if (this.state.accessibility.public == true || this.state.owner == this.state.uid)
+        {
+            return (
+                <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => {
+                    this.setState({ isDialogVisible: true })
+                }}>Inivter dans la playlist</Button>
+            )
+        }
     }
     render() {
         return (
@@ -186,10 +206,8 @@ class PlaylistDetail extends React.Component {
                     }}
                     closeDialog={() => { this.setState({ isDialogVisible: false }) }}>
                 </DialogInput>
-                <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => {
-                    this.setState({ isDialogVisible: true })
-                }}>Ajouter dans la playlist</Button>
 
+                {this._addInPlaylist()}
                 <Button style={{ margin: 5, marginTop: 5, borderRadius: 5, borderWitdh: 1, borderColor: '#FFFFFF' }} icon="done" mode="contained" onPress={() => this._PlayAll()}>
                     Lecture
                 </Button>

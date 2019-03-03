@@ -1,5 +1,5 @@
 import React from 'react'
-import DispSongs from '../DispSongs'
+import DispSongsSearch from './DispSongsSearch'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import { Appbar, Searchbar } from 'react-native-paper';
 import axios from 'axios'
@@ -47,11 +47,11 @@ class Search extends React.Component {
     render() {
         return (
             <SafeAreaView style={styles.main_container}>
-                {/* <Appbar.Header>
+                <Appbar.Header>
                     <Appbar.BackAction
                         onPress={() => this.props.navigation.navigate('UserProfil')}
                     />
-                </Appbar.Header> */}
+                </Appbar.Header>
                 <Searchbar
                     placeholder='Search'
                     placeholderTextColor='#FFFFFF'
@@ -62,7 +62,7 @@ class Search extends React.Component {
                 <FlatList
                     data={this.state.res_song}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => <DispSongs song={item} nav={this.props.navigation}/>}
+                    renderItem={({ item }) => <DispSongsSearch song={item} nav={this.props.navigation}/>}
                 />
                 {this._displayLoading()}
             </SafeAreaView>

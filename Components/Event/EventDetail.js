@@ -1,8 +1,11 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native'
 import firebase from 'react-native-firebase';
-import { Appbar } from 'react-native-paper';
-import DispSongs from '../DispSongs'
+import { Appbar, Switch } from 'react-native-paper';
+import DispSongsEvent from './DispSongsEvent'
+import DialogInput from 'react-native-dialog-input';
+import { addUserInEvent } from '../../API/addUserInEvent'
+import TrackPlayer from 'react-native-track-player';
 
 class EventDetail extends React.Component {
     constructor(props) {
@@ -23,7 +26,8 @@ class EventDetail extends React.Component {
             switch_state_follow: null,
             uid: '',
             follower: [],
-            accessibility: {}
+            accessibility: {},
+            isDialogVisible: false,
         }
 
     }
@@ -41,12 +45,10 @@ class EventDetail extends React.Component {
     }
     _compare = (arr, vote) => {
         for (var key in arr) {
-            if(arr[key].id !== undefined && vote[arr[key].id] !== undefined)
-            {
+            if (arr[key] !== undefined && vote[arr[key].id] !== undefined) {
                 arr[key].nb_vote = vote[arr[key].id].length
             }
-            else
-            {
+            else {
                 arr[key].nb_vote = 0
             }
         }
@@ -62,17 +64,56 @@ class EventDetail extends React.Component {
             )
         }
     }
-    onUpdate = (snap) => {
+
+    _dispChangeAccess() {
+        if (this.state.uid === this.state.owner) {
+            return (
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 20, padding: 5 }}>Visible par tous : </Text>
+                    <Switch
+                        value={this.state.switch_state}
+                        onValueChange={(data) => {
+                            if (data === true) {
+                                this.ref.update({
+                                    accessibility: {
+                                        public: true
+                                    }
+                                })
+                            }
+                            else {
+                                this.ref.update({
+                                    accessibility: {
+                                        public: false
+                                    }
+                                })
+                            }
+                            this.setState({ switch_state: data });
+                        }}
+                    />
+                </View>
+            )
+        }
+    }
+
+    onUpdate = async (snap) => {
         if (snap.exists) {
-            this.setState({
-                titles: this._compare(snap.data().titles, this.state.vote),
-                name: snap.data().Name,
-                creator_name: "Par " + snap.data().creator_name,
-                is_load: false,
-                owner: snap.data().owner,
-                follower: snap.data().follower,
-                accessibility: snap.data().accessibility
-            })
+            if (snap.data().accessibility.public === false && !snap.data().follower.includes(this.state.uid)) {
+                console.log('plus dedans')
+                await TrackPlayer.pause()     
+                await TrackPlayer.removeUpcomingTracks()           
+                this.props.navigation.navigate('Event', {need_update :  1, id : this.state.id});
+            }
+            else {
+                this.setState({
+                    titles: this._compare(snap.data().titles, this.state.vote),
+                    name: snap.data().Name,
+                    creator_name: "Par " + snap.data().creator_name,
+                    is_load: false,
+                    owner: snap.data().owner,
+                    follower: snap.data().follower,
+                    accessibility: snap.data().accessibility
+                })
+            }
         }
         else {
             this.props.navigation.goBack()
@@ -80,7 +121,7 @@ class EventDetail extends React.Component {
     }
     onUpdateEvent = (snap) => {
         if (snap.exists) {
-            this.setState({ vote: snap.data(), titles : this._compare(this.state.titles, snap.data())})
+            this.setState({ vote: snap.data(), titles: this._compare(this.state.titles, snap.data()) })
         }
     }
     componentDidMount() {
@@ -108,14 +149,38 @@ class EventDetail extends React.Component {
                         title={this.state.name}
                         subtitle={this.state.creator_name}
                     />
-                    <Appbar.Action icon="more-vert" onPress={this._onMore} />
+                    <Appbar.Action icon="more-vert" onPress={() => {
+                        if (this.state.uid === this.state.owner) {
+                            this.setState({ isDialogVisible: true })
+                        }
+                    }} />
                 </Appbar.Header>
+                <DialogInput isDialogVisible={this.state.isDialogVisible}
+                    title={"Ajouter utilisateur dans l'event"}
+                    message={"Veuillez entrez son adresse mail : "}
+                    submitInput={(inputText) => {
+                        this.setState({ isDialogVisible: false, is_load: true })
+                        addUserInEvent(this.state.user, this.state.id, inputText).then((response) => {
+                            this.setState({ is_load: false })
+                            Alert.alert("OK !", response._bodyText,
+                                [
+                                    {
+                                        text: "OK"
+                                    }
+                                ])
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                    }}
+                    closeDialog={() => { this.setState({ isDialogVisible: false }) }}>
+                </DialogInput>
+                {this._dispChangeAccess()}
                 <FlatList
                     extraData={this.state}
                     data={this.state.titles}
                     keyExtractor={(item, key) => key.toString()}
                     renderItem={({ item }) =>
-                        <DispSongs event={true} song={item} vote={this.state.vote} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
+                        <DispSongsEvent event={true} song={item} vote={this.state.vote} id={this.state.id} access={this.state.accessibility} owner={this.state.owner} follower={this.state.follower} uid={this.state.user._user.uid} />
                     }
                 />
                 {this._displayLoading()}

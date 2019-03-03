@@ -1,11 +1,11 @@
-import { createSwitchNavigator, createAppContainer, createBottomTabNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
+import { createSwitchNavigator, createAppContainer, createBottomTabNavigator, createStackNavigator, createMaterialTopTabNavigator,StackActions } from 'react-navigation'
 import React from 'react'
 import Signup from '../Components/Signup'
 import Login from '../Components/Login'
 import Loading from '../Components/Loading'
 import UserProfile from '../Components/UserProfile'
 import ForgotPwd from '../Components/ForgotPwd'
-import Playlist from '../Components/Playlist'
+import Playlist from '../Components/Playlist/Playlist'
 import Event from '../Components/Event/Event'
 import EventDetail from '../Components/Event/EventDetail'
 import ModifUser from '../Components/User_actions/ModifyUserInfo'
@@ -32,7 +32,7 @@ const PlaylistPrivPub = createMaterialTopTabNavigator({
     PlaylistPriv: {
         screen: UserPlaylist,
         navigationOptions: {
-            title: 'Playlist Privée'
+            title: 'Mes Playlists'
         }
 
     }

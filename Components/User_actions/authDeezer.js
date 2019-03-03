@@ -33,9 +33,8 @@ class ModifUser extends React.Component {
         if (my_url.includes('https://connect.deezer.com/oauth/auth.php?app_id=332122&redirect_uri=https://us-central1-music-room-42.cloudfunctions.net/callbackDeezer&perms=basic_access,email') === false)
         {
             firebase.firestore().collection('users').doc(this.state.user._user.uid).update({
-                is_link_to_deezer : true
+                is_linked_to_deezer : true
             })
-            // console.log('OK')
             this.props.navigation.navigate('UserProfil')
         }
       }

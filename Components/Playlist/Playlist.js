@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native'
-import { getAllPublicPlaylist } from '../API/getAllPublicPlaylist'
+import { getAllPublicPlaylist } from '../../API/getAllPublicPlaylist'
 import firebase from 'react-native-firebase';
 import { Appbar } from 'react-native-paper';
 
@@ -53,18 +53,6 @@ class Playlist extends React.Component {
                     <ActivityIndicator size='large' />
                 </View>
             )
-        }
-    }
-    componentDidUpdate() {
-        if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.change == 1) {
-            this.setState({ is_load: true })
-            var user = firebase.auth().currentUser
-            if (user === null) {
-                this.props.navigation.navigate('Signup')
-            }
-            getAllPublicPlaylist(user).then((p) => {
-                this.setState({ user, playlist: p, is_load: false })
-            })
         }
     }
     componentDidMount() {

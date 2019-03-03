@@ -11,7 +11,7 @@ class Event extends React.Component {
             user: {},
             event: [],
             is_load: true,
-            refresh : false
+            refresh: false
         }
 
     }
@@ -27,7 +27,7 @@ class Event extends React.Component {
 
     _Onref = () => {
         console.log("onref")
-        this.setState({ refresh: true, is_load : true })
+        this.setState({ refresh: true, is_load: true })
         var user = firebase.auth().currentUser
         if (user === null) {
             this.props.navigation.navigate('Signup')
@@ -37,20 +37,20 @@ class Event extends React.Component {
                 console.log(position)
                 var timestamp = Math.floor(Date.now() / 1000)
                 getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
-                    this.setState({ is_load: false, user, event: data, refresh : false })
+                    this.setState({ is_load: false, user, event: data, refresh: false })
                 })
             },
-            (error) => { 
+            (error) => {
                 Alert.alert("OK !", error.message,
-                [
-                    {
-                        text: "OK", onPress:() => {
-                            firebase.auth().signOut().then(() => {
-                                this.props.navigation.navigate('Login')
-                            })
+                    [
+                        {
+                            text: "OK", onPress: () => {
+                                firebase.auth().signOut().then(() => {
+                                    this.props.navigation.navigate('Login')
+                                })
+                            }
                         }
-                    }
-                ])
+                    ])
             },
             { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
         )
@@ -59,6 +59,7 @@ class Event extends React.Component {
         return (
             <FlatList
                 data={this.state.event}
+                extraData={this.state}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) =>
                     <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => {
@@ -72,6 +73,15 @@ class Event extends React.Component {
                 onRefresh={this._Onref}
             />
         )
+    }
+    componentDidUpdate(){
+        if(this.props.navigation.state.params !== undefined && this.props.navigation.state.params.need_update === 1)
+        {
+            var indexOfEvent = this.state.event.findIndex(item => item.id === this.props.navigation.state.params.id);
+            this.state.event.splice(indexOfEvent, 1);
+            this.setState({event : this.state.event})
+            this.props.navigation.state.params.need_update = 0
+        }
     }
     componentDidMount() {
         var user = firebase.auth().currentUser
@@ -89,15 +99,15 @@ class Event extends React.Component {
             },
             (error) => {
                 Alert.alert("OK !", error.message,
-                [
-                    {
-                        text: "OK", onPress:() => {
-                            firebase.auth().signOut().then(() => {
-                                this.props.navigation.navigate('Login')
-                            })
+                    [
+                        {
+                            text: "OK", onPress: () => {
+                                firebase.auth().signOut().then(() => {
+                                    this.props.navigation.navigate('Login')
+                                })
+                            }
                         }
-                    }
-                ])
+                    ])
             },
             { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
         )
