@@ -129,7 +129,7 @@ class Signup extends React.Component {
 				return "Invalid pseudo. Must have at least 6 characters"
 			}
 			else if (user_pwd.length > 0 && (user_pwd.length < 6 || !(formatPwd.test(user_pwd)))) {
-				return "Le mot de passe doit etre plus long que 6 caractères et avoir au moins un caractère spécial"
+				return "The password must be at least 6 characters long"
 			}
 			else if (user_pwd.length > 0 && conf_pwd.length < user_pwd.length) {
 				return ""
