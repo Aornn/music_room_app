@@ -3,9 +3,11 @@ import { SafeAreaView, View, StyleSheet, Text, ActivityIndicator, FlatList, Aler
 import firebase from 'react-native-firebase';
 import { Appbar, Switch, Button } from 'react-native-paper';
 import { addUserInPlaylist } from '../../API/addUserInPlaylist'
+import { deletePlaylist } from '../../API/deletePlaylist'
 import DispSongsPlaylist from './DispSongsPlaylist'
 import TrackPlayer from 'react-native-track-player';
 import DialogInput from 'react-native-dialog-input';
+import { MaterialDialog } from 'react-native-material-dialog';
 
 class PlaylistDetail extends React.Component {
     constructor(props) {
@@ -15,6 +17,7 @@ class PlaylistDetail extends React.Component {
         this.state = {
             id: this.props.navigation.state.params.id,
             isDialogVisible: false,
+            addUser: false,
             user: {},
             owner: '',
             is_load: false,
@@ -26,7 +29,7 @@ class PlaylistDetail extends React.Component {
             uid: '',
             follower: [],
             accessibility: {},
-            isDialogVisible : false,
+            isDialogVisible: false,
         }
 
     }
@@ -39,6 +42,25 @@ class PlaylistDetail extends React.Component {
                 </View>
             )
         }
+    }
+    _deletePlaylist() {
+        this.setState({ is_load: true })
+        deletePlaylist(this.state.user, this.state.id).then((response) => {
+            this.setState({ is_load: false })
+            Alert.alert("OK !", response._bodyText,
+                [
+                    {
+                        text: "OK"
+                    }
+                ])
+        }).catch(err => {
+            Alert.alert("Erreur", err.message,
+                [
+                    {
+                        text: "OK"
+                    }
+                ])
+        })
     }
     _dispTitles() {
         if (this.state.titles.length > 0) {
@@ -144,13 +166,13 @@ class PlaylistDetail extends React.Component {
 
         }
         else {
-            this.props.navigation.goBack()
+            this.props.navigation.navigate('PlaylistPriv', { need_update: 1, id: this.state.id });
         }
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         this.setState({ is_load: true })
         this.sub = this.ref.onSnapshot(this.onUpdate)
@@ -178,13 +200,23 @@ class PlaylistDetail extends React.Component {
                             this.setState({ isDialogVisible: true })
                         }
                     }} />
-                    
+
                 </Appbar.Header>
-                <DialogInput isDialogVisible={this.state.isDialogVisible}
+                <MaterialDialog
+                    title="Que voulez vous faire ?"
+                    titleColor='#FFFFFF'
+                    visible={this.state.isDialogVisible}
+                    backgroundColor='rgba(0,0,0,1.0)'
+                    onCancel={() => { this.setState({ isDialogVisible: false }) }}>
+                    <View>
+                        <TouchableOpacity onPress={() => {
+                            this.setState({ addUser: true })
+                        }}>
+                            <DialogInput isDialogVisible={this.state.addUser}
                                 title={"Ajouter utilisateur dans la playlist"}
                                 message={"Veuillez entrez son adresse mail : "}
                                 submitInput={(inputText) => {
-                                    this.setState({ isDialogVisible: false, isDialogVisible: false, is_load: true })
+                                    this.setState({ isDialogVisible: false, addUser: false, is_load: true })
                                     addUserInPlaylist(this.state.user, this.state.id, inputText).then((response) => {
                                         this.setState({ is_load: false })
                                         Alert.alert("OK !", response._bodyText,
@@ -204,6 +236,16 @@ class PlaylistDetail extends React.Component {
                                 }}
                                 closeDialog={() => { this.setState({ addUser: false, isDialogVisible: false }) }}>
                             </DialogInput>
+                            <Text style={{ fontSize: 25, color: '#FFFFFF', padding: 10, fontWeight: 'bold', textAlign: 'center' }}>Ajouter dans la playlist</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            this.setState({ isDialogVisible: false })
+                            this._deletePlaylist()
+                        }}>
+                            <Text style={{ fontSize: 25, color: '#FFFFFF', padding: 10, fontWeight: 'bold', textAlign: 'center' }}>Supprimer la playlist</Text>
+                        </TouchableOpacity>
+                    </View>
+                </MaterialDialog>
                 {this._dispChangeAccess()}
                 <TouchableOpacity onPress={() => this._PlayAll()}>
                     <Text style={{ fontSize: 25, color: '#FFFFFF', padding: 10, fontWeight: 'bold', textAlign: 'center' }}>Lancer la lecture !</Text>

@@ -25,23 +25,34 @@ class AddPlaylist extends React.Component {
             )
         }
     }
-    _addPlaylist(id) {
+    async _addPlaylist(id) {
+        let to_add = true
         const song = this.props.navigation.state.params.song
-        this.ref.doc(id).update({
-            titles: firebase.firestore.FieldValue.arrayUnion(
-                {
-                    ...song,
-                    // in_Playlist: true,
-                }
-            )
-        }).then(() => {
+        let song_res = await firebase.firestore().collection('playlist').doc(id).get()
+        for (var i = 0; i < song_res.data().titles.length; i++) {
+            if (song_res.data().titles[i].id === song.id) {
+                to_add = false
+                break
+            }
+        }
+        if (to_add === true) {
+            this.ref.doc(id).update({
+                titles: firebase.firestore.FieldValue.arrayUnion(
+                    {
+                        ...song,
+                    }
+                )
+            }).then(() => {
+                this.props.navigation.goBack()
+            })
+        } else {
             this.props.navigation.goBack()
-        })
+        }
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         let playlist = []
         const res = await this.ref.where('follower', 'array-contains', user._user.uid).get()
@@ -85,7 +96,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#000000',
     },
     loading_container: {
-        zIndex : 1,
+        zIndex: 1,
         position: 'absolute',
         backgroundColor: '#191414',
         left: 0,

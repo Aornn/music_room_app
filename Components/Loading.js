@@ -19,10 +19,14 @@ class Signup extends React.Component {
             )
         }
     }
-   async  componentDidMount() {
-        var user = firebase.auth().currentUser
+
+
+componentDidMount() {
+        var user = firebase.auth().
+        console.log('user')
+        console.log(user)
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         else {
             this.props.navigation.navigate('Main')

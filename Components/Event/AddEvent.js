@@ -23,40 +23,54 @@ class AddEvent extends React.Component {
             )
         }
     }
-    _addEvent(id) {
+    async _addEvent(id) {
         const song = this.props.navigation.state.params.song
-        this.ref.doc(id).update({
-            titles: firebase.firestore.FieldValue.arrayUnion(
-                {
-                    ...song,
-                }
-            )
-        })
-        .then(() => {
-            firebase.firestore().collection('vote').doc(id).update({
-                [song.id] : []
+        // let old_songs = await firebase.firestore().collection('event').doc(id).get()
+
+        // if (old_songs.data().titles.includes(song)) {
+        //     console.log('in')
+        // }
+        // else {
+        // console.log('else')
+        let vote = await firebase.firestore().collection('vote').doc(id).get()
+        if (!vote.data().hasOwnProperty(song.id)) {
+            this.ref.doc(id).update({
+                titles: firebase.firestore.FieldValue.arrayUnion(
+                    {
+                        ...song,
+                    }
+                )
             })
-        })
-        .then(() => {
+                .then(async () => {
+                    firebase.firestore().collection('vote').doc(id).update({
+                        [song.id]: []
+                    })
+                })
+                .then(() => {
+                    this.props.navigation.goBack()
+                })
+        }else{
             this.props.navigation.goBack()
-        })
+        }
+        // }
+
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         let playlist = []
         let curr_timestamp = Math.floor(Date.now() / 1000)
         const res = await this.ref.where('follower', 'array-contains', user._user.uid).get()
         res.forEach(elem => {
             if (elem.data().start < curr_timestamp && elem.data().end > curr_timestamp)
-            playlist.push({
-                id: elem.id,
-                Name: elem.data().Name,
-                creator_name: elem.data().creator_name,
-                nb_titles: elem.data().titles.length,
-            })
+                playlist.push({
+                    id: elem.id,
+                    Name: elem.data().Name,
+                    creator_name: elem.data().creator_name,
+                    nb_titles: elem.data().titles.length,
+                })
         });
         this.setState({ playlist, uid: user._user.uid, is_load: false })
     }
@@ -90,7 +104,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#000000',
     },
     loading_container: {
-        zIndex : 1,
+        zIndex: 1,
         position: 'absolute',
         backgroundColor: '#191414',
         left: 0,

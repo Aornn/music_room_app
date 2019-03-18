@@ -28,7 +28,7 @@ class ForgotPwd extends React.Component {
 		this.setState({is_load: true})
 		firebase.auth().sendPasswordResetEmail(this.state.user_email.trim())
 			.then(() => {
-				this.props.navigation.navigate('Login')
+				this.props.navigation.navigate('Signup')
 			})
 			.catch((err) => {
 				this.setState({is_load: false, error: err.message})

@@ -176,15 +176,15 @@ const Switch = createSwitchNavigator(
         Login: {
             screen: Login
         },
-        Loading: {
-            screen: Loading
-        },
+        // Loading: {
+        //     screen: Loading
+        // },
         Main: {
             screen: Music_nav
         }
     },
     {
-        initialRouteName: 'Loading'
+        initialRouteName: 'Login'
     }
 )
 

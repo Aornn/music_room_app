@@ -5,7 +5,9 @@ import { Appbar, Switch } from 'react-native-paper';
 import DispSongsEvent from './DispSongsEvent'
 import DialogInput from 'react-native-dialog-input';
 import { addUserInEvent } from '../../API/addUserInEvent'
-import TrackPlayer, { STATE_NONE, STATE_PLAYING, STATE_PAUSED, STATE_STOPPED } from 'react-native-track-player';
+import { AddUserPlayer } from '../../API/addUserCanPlayInEvent'
+
+import TrackPlayer from 'react-native-track-player';
 import { MaterialDialog } from 'react-native-material-dialog';
 
 class EventDetail extends React.Component {
@@ -63,12 +65,24 @@ class EventDetail extends React.Component {
     }
 
     _compare = (arr, vote) => {
-        for (var key in arr) {
-            if (arr[key] !== undefined && arr[key].id !== undefined && vote[arr[key].id] !== undefined) {
-                arr[key].nb_vote = vote[arr[key].id].length
-            }
-            else {
-                arr[key].nb_vote = 0
+        for(var i = 0; i < arr.length; i++)
+        {
+            let temp_id = arr[i].id ? arr[i].id : null 
+            if(temp_id !== null)
+            {
+                let t_vote = vote[temp_id] ? vote[temp_id] : null
+                if( t_vote !== null)
+                {
+                    arr[i].nb_vote = t_vote.length 
+                }
+                // if (t_vote.length === undefined)
+                // {
+                //     arr[i].nb_vote = 0
+                // }
+                // else
+                // {
+                //     arr[i].nb_vote = t_vote.length 
+                // }
             }
         }
         return arr.sort(this._order)
@@ -188,9 +202,9 @@ class EventDetail extends React.Component {
         }
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         this.setState({ is_load: true, user, uid: user._user.uid })
         this.sub_event = this.event_ref.onSnapshot(this.onUpdateEvent)
@@ -265,6 +279,22 @@ class EventDetail extends React.Component {
                                 message={"Veuillez entrez son adresse mail : "}
                                 submitInput={(inputText) => {
                                     this.setState({ isDialogVisible: false, addUser: false, is_load: true })
+                                    AddUserPlayer(this.state.user, this.state.id, inputText).then((response) => {
+                                        this.setState({ is_load: false })
+                                        Alert.alert("OK !", response._bodyText,
+                                            [
+                                                {
+                                                    text: "OK"
+                                                }
+                                            ])
+                                    }).catch(err => {
+                                        Alert.alert("Erreur", err.message,
+                                            [
+                                                {
+                                                    text: "OK"
+                                                }
+                                            ])
+                                    })
                                 }}
                                 closeDialog={() => { this.setState({ addUser: false }) }}>
                             </DialogInput>

@@ -3,6 +3,7 @@ import { SafeAreaView, View, Button, StyleSheet, Text, ActivityIndicator, Alert,
 import firebase from 'react-native-firebase';
 import { TextInput } from 'react-native-paper';
 import { formatEmail, formatPwd } from "./../utils/validation";
+import { GoogleSignin, GoogleSigninButton } from 'react-native-google-signin';
 
 class Login extends React.Component {
 	constructor(props) {
@@ -13,6 +14,61 @@ class Login extends React.Component {
 			user_pwd: '',
 			error: false,
 		}
+	}
+	onLoginOrRegister = async () => {
+		// Add any configuration settings here:
+
+		await GoogleSignin.configure({
+			webClientId: '361260648605-c0fvnokdq34qb4o165pfjmmqimh3g68h.apps.googleusercontent.com'
+		});
+		var data = undefined
+		try {
+			data = await GoogleSignin.signIn();
+			this.setState({ is_load: true })
+		}
+		catch{
+			this.setState({ is_load: false })
+		}
+		if (data !== undefined) {
+			const credential = await firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+			await firebase.auth().signInWithCredential(credential);
+			const user = await firebase.auth().currentUser
+			firebase.firestore().collection('users').doc(user._user.uid).get()
+				.then(async (snap) => {
+					if (!snap.exists) {
+						await firebase.firestore().collection('users').doc(user._user.uid).set({
+							accessibility: {
+								friends: true,
+								public: true
+							},
+							displayName: user._user.displayName,
+							friends: [],
+							pref_music: [],
+							is_linked_to_google: true,
+							is_linked_to_facebook: false,
+							is_linked_to_deezer: false
+						})
+						await firebase.firestore().collection('hash_users').doc(user._user.email).set({
+							uid: user._user.uid
+						})
+					}
+					this.props.navigation.navigate('UserProfil')
+				})
+		}
+	};
+
+	componentDidMount() {
+		var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
+		if (user !== null) {
+
+			this.props.navigation.navigate('UserProfil')
+		}
+		this.setState({
+			is_load: false,
+			user_email: '',
+			user_pwd: '',
+			error: false,
+		})
 	}
 
 	_displayLoading() {
@@ -43,7 +99,7 @@ class Login extends React.Component {
 					[{
 						text: "OK", onPress: async () => {
 							await firebase.auth().signOut()
-							this.props.navigation.navigate('Login')
+							this.props.navigation.navigate('Signup')
 						}
 					}],
 					{ cancelable: false })
@@ -58,7 +114,7 @@ class Login extends React.Component {
 				[
 					{
 						text: "OK", onPress: async () => {
-							this.props.navigation.navigate('Login')
+							this.props.navigation.navigate('Signup')
 						}
 					}
 				],
@@ -67,7 +123,7 @@ class Login extends React.Component {
 	}
 	render() {
 		const { user_email, user_pwd } = this.state
-		const showLoginButton = formatPwd.test(user_pwd) && formatEmail.test(user_email) && !this.state.error
+		const showLoginButton = formatEmail.test(user_email) && !this.state.error
 		return (
 			<SafeAreaView style={styles.main_container}>
 				<Text style={styles.titre}>Connexion</Text>
@@ -102,6 +158,12 @@ class Login extends React.Component {
 					</TouchableOpacity>}
 				</View>
 				<View style={{ alignItems: 'center' }}>
+					<GoogleSigninButton
+						style={{ width: 300, height: 50 }}
+						size={GoogleSigninButton.Size.Wide}
+						color={GoogleSigninButton.Color.Light}
+						onPress={this.onLoginOrRegister}
+					/>
 					<TouchableOpacity
 						style={styles.button}
 						onPress={() => this.props.navigation.navigate('Signup')}

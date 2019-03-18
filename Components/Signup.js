@@ -17,15 +17,26 @@ import { formatEmail, formatPseudo, formatPwd } from "./../utils/validation";
 class Signup extends React.Component {
 	constructor(props) {
 		super(props);
-		this.ref = firebase.firestore().collection('test_react_native');
+		this._user = firebase.auth().currentUser ? firebase.auth().currentUser : null
 		this.state = {
 			user_email: '',
 			user_pwd: '',
 			user_pseudo: '',
-			is_load: false,
+			is_load: true,
 			conf_pwd: '',
 		};
 	}
+
+	componentDidMount() {
+		// var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
+		// if (user !== null) {
+		// 	console.log('sign')
+		// 	console.log(user)
+		// 	this.props.navigation.navigate('UserProfil')
+		// }
+		this.setState({is_load : false})
+	}
+
 	onLoginOrRegister = async () => {
 		// Add any configuration settings here:
 
@@ -35,10 +46,10 @@ class Signup extends React.Component {
 		var data = undefined
 		try {
 			data = await GoogleSignin.signIn();
-			this.setState({is_load : true})
+			this.setState({ is_load: true })
 		}
 		catch{
-			this.setState({is_load : false})
+			this.setState({ is_load: false })
 		}
 		if (data !== undefined) {
 			const credential = await firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
@@ -55,7 +66,7 @@ class Signup extends React.Component {
 							displayName: user._user.displayName,
 							friends: [],
 							pref_music: [],
-							is_linked_to_google : true, 
+							is_linked_to_google: true,
 							is_linked_to_facebook: false,
 							is_linked_to_deezer: false
 						})
@@ -100,9 +111,10 @@ class Signup extends React.Component {
 			this.setState({ is_load: true })
 			await firebase.auth().createUserWithEmailAndPassword(this.state.user_email.trim(), this.state.user_pwd.trim())
 			const user = firebase.auth().currentUser
-			if (user === null) {
-				this.props.navigation.navigate('Login')
-			}
+			// if (user === null) {
+			// 	console.log('Signup')
+			// 	this.props.navigation.navigate('Signup')
+			// }
 			token = await this._getToken(user)
 			await user.updateProfile({ displayName: this.state.user_pseudo.trim() })
 			user.sendEmailVerification()
@@ -114,7 +126,7 @@ class Signup extends React.Component {
 			}
 			await fetch('https://us-central1-music-room-42.cloudfunctions.net/initUser', config)
 			await firebase.auth().signOut()
-			this.props.navigation.navigate('Login')
+			this.props.navigation.navigate('Signup')
 		}
 	}
 
@@ -128,8 +140,8 @@ class Signup extends React.Component {
 			else if (user_pseudo.length > 0 && !(formatPseudo.test(user_pseudo))) {
 				return "Invalid pseudo. Must have at least 6 characters"
 			}
-			else if (user_pwd.length > 0 && (user_pwd.length < 6 || !(formatPwd.test(user_pwd)))) {
-				return "The password must be at least 6 characters long"
+			else if (user_pwd.length > 0 && (user_pwd.length < 6)) {
+				return "Le mot de passe doit etre plus long que 6 caractères"
 			}
 			else if (user_pwd.length > 0 && conf_pwd.length < user_pwd.length) {
 				return ""
@@ -139,7 +151,7 @@ class Signup extends React.Component {
 			}
 
 		}
-		if (user_pwd.length > 6 && formatPwd.test(user_pwd) && user_pwd === conf_pwd && formatEmail.test(user_email)) {
+		if (user_pwd.length > 6 && user_pwd === conf_pwd && formatEmail.test(user_email)) {
 			return (
 				<View style={{ alignItems: 'center' }}>
 					<TouchableOpacity
@@ -236,7 +248,7 @@ class Signup extends React.Component {
 					/>
 					<TouchableOpacity
 						style={styles.button}
-						onPress={() => this.props.navigation.navigate('Login')}>
+						onPress={() => this.props.navigation.navigate('Signup')}>
 						<Text style={styles.inscription_but}>Deja un compte ? Se Connecter</Text>
 					</TouchableOpacity>
 				</View>

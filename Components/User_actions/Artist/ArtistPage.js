@@ -32,7 +32,7 @@ class ArtistPage extends React.Component {
 
     async componentDidMount() {
         this.setState({ is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         var artist = this.props.navigation.state.params.artist
         var response = await Axios.get('https://api.deezer.com/artist/' + artist.id + '/top?limit=30')
         var artist_song = response.data.data
@@ -42,7 +42,7 @@ class ArtistPage extends React.Component {
                 await GoogleSignin.signOut();
             }
             catch{ }
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         this.setState({ user, is_load: false, artist, artist_song })
     }

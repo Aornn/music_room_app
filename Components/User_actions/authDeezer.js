@@ -21,9 +21,9 @@ class ModifUser extends React.Component {
         }
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         this.setState({ user, is_load: false })
     }

@@ -7,14 +7,22 @@ import { Appbar } from 'react-native-paper';
 class Event extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            user: {},
-            event: [],
-            is_load: true,
-            refresh: false
-        }
+        this._isMount = false,
+            this.state = {
+                user: {},
+                event: [],
+                is_load: true,
+                refresh: false
+            }
 
     }
+
+    _getPosition = function (options) {
+        return new Promise(function (resolve, reject) {
+            navigator.geolocation.getCurrentPosition(resolve, reject, options);
+        });
+    }
+
     _displayLoading() {
         if (this.state.is_load) {
             return (
@@ -27,32 +35,45 @@ class Event extends React.Component {
 
     _Onref = async () => {
         this.setState({ refresh: true, is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                var timestamp = Math.floor(Date.now() / 1000)
-                getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
-                    this.setState({ is_load: false, user, event: data, refresh: false })
-                })
-            },
-            (error) => {
-                Alert.alert("OK !", error.message,
-                    [
-                        {
-                            text: "OK", onPress: () => {
-                                firebase.auth().signOut().then(() => {
-                                    this.props.navigation.navigate('Login')
-                                })
-                            }
-                        }
-                    ])
-            },
-            { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 },
-        )
+        else {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    var timestamp = Math.floor(Date.now() / 1000)
+                    getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp).then((data) => {
+                        this.setState({ is_load: false, user, event: data, refresh: false })
+                    })
+                        .catch(() => {
+                            this.props.navigation.navigate('Signup')
+                        })
+                },
+                (error) => {
+                    if (user !== null) {
+                        Alert.alert("OK !", error.message,
+                            [
+                                {
+                                    text: "OK", onPress: () => {
+                                        firebase.auth().signOut().then(async () => {
+                                            try {
+                                                await GoogleSignin.revokeAccess();
+                                                await GoogleSignin.signOut();
+                                            }
+                                            catch{ }
+                                            this.props.navigation.navigate('Signup')
+                                        })
+                                    }
+                                }
+                            ])
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 200000, maximumAge: 1000 })
+        }
+
     }
+
     _displayEvent() {
         return (
             <FlatList
@@ -80,50 +101,86 @@ class Event extends React.Component {
             this.props.navigation.state.params.need_update = 0
         }
     }
-    async  componentDidMount() {
-        var user = firebase.auth().currentUser
-        if (user === null) {
-            this.props.navigation.navigate('Login')
-        }
+    componentWillUnmount() {
+        this._isMount = false
+    }
 
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                console.log(position)
-                var timestamp = Math.floor(Date.now() / 1000)
-                getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, timestamp)
-                    .then((data) => {
-                        this.setState({ is_load: false, user, event: data })
-                    })
-                    .catch(() => {
-                        firebase.auth().signOut().then(async () => {
-                            try {
-                                await GoogleSignin.revokeAccess();
-                                await GoogleSignin.signOut();
-                            }
-                            catch{ }
-                            this.props.navigation.navigate('Login')
-                        })
-                    })
-            },
-            (error) => {
-                Alert.alert("OK !", error.message,
+    async  componentDidMount() {
+        this._isMount = true
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser ? firebase.auth().currentUser : null
+        if (user === null) {
+            this.props.navigation.navigate('Signup')
+        }
+        else {
+            let position = await this._getPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }).catch(async err => {
+                console.log(err)
+                Alert.alert("OK !", err.message,
                     [
                         {
                             text: "OK", onPress: () => {
-                                firebase.auth().signOut().then(async () => {
-                                    try {
-                                        await GoogleSignin.revokeAccess();
-                                        await GoogleSignin.signOut();
-                                    }
-                                    catch{ }
-                                    this.props.navigation.navigate('Login')
-                                })
+                                if (user !== null) {
+                                    firebase.auth().signOut().then(async () => {
+                                        try {
+                                            await GoogleSignin.revokeAccess();
+                                            await GoogleSignin.signOut();
+                                        }
+                                        catch{ }
+                                        this.props.navigation.navigate('Signup')
+                                    })
+                                }
                             }
                         }
                     ])
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 },
-        )
+            })
+            console.log(position)
+            console.log('mount')
+            if (user !== null && position !== undefined) {
+                getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, Math.floor(Date.now() / 1000))
+                    .then((data) => {
+                        if (this._isMount === true) {
+                            this.setState({ is_load: false, user, event: data })
+                        }
+                    })
+                    .catch(() => {
+                    })
+            }
+
+            // navigator.geolocation.getCurrentPosition(
+            //     (position) => {
+            //         console.log(position)
+            //         console.log('mount')
+            //         getAllPublicEvent(user, position.coords.longitude, position.coords.latitude, Math.floor(Date.now() / 1000))
+            //             .then((data) => {
+            //                 this.setState({ is_load: false, user, event: data })
+            //             })
+            //             .catch(() => {
+            //                 this.props.navigation.navigate('Signup')
+            //             })
+            //     },
+            //     (error) => {
+            //         var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser ? firebase.auth().currentUser : null
+            //         if (user !== null) {
+            //             Alert.alert("OK !", error.message,
+            //                 [
+            //                     {
+            //                         text: "OK", onPress: () => {
+            //                             if (user !== null) {
+            //                                 firebase.auth().signOut().then(async () => {
+            //                                     try {
+            //                                         await GoogleSignin.revokeAccess();
+            //                                         await GoogleSignin.signOut();
+            //                                     }
+            //                                     catch{ }
+            //                                     this.props.navigation.navigate('Signup')
+            //                                 })
+            //                             }
+            //                         }
+            //                     }
+            //                 ])
+            //         }
+            //     },
+            //     { enableHighAccuracy: true, timeout: 200000, maximumAge: 10000 })
+        }
     }
     render() {
         return (
@@ -148,7 +205,7 @@ const styles = StyleSheet.create({
 
     },
     loading_container: {
-        zIndex : 1,
+        zIndex: 1,
         position: 'absolute',
         backgroundColor: '#191414',
         left: 0,

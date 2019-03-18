@@ -7,19 +7,20 @@ import { List, Appbar } from 'react-native-paper';
 class UserPlaylist extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            user: {},
-            is_load: false,
-            playlist: [],
-            refresh: false,
-        }
+        this._isMount = false,
+            this.state = {
+                user: {},
+                is_load: false,
+                playlist: [],
+                refresh: false,
+            }
 
     }
     _Onref = async () => {
         this.setState({ refresh: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         getUserPlaylist(user).then((p) => {
             this.setState({ user, playlist: p, refresh: false })
@@ -39,21 +40,21 @@ class UserPlaylist extends React.Component {
     }
     _displayPlaylist() {
 
-            return (
-                <FlatList
-                    data={this.state.playlist}
-                    extraData={this.state}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) =>
-                        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
-                            <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
-                            <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
-                        </TouchableOpacity>
-                    }
-                    refreshing={this.state.refresh}
-                    onRefresh={this._Onref}
-                />
-            )
+        return (
+            <FlatList
+                data={this.state.playlist}
+                extraData={this.state}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) =>
+                    <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgb(18,18,18)', padding: 5, marginBottom: 5 }} onPress={() => this._NavToPlaylistdetail(item.id)}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 20, marginLeft: 5 }}>{item.Name}</Text>
+                        <Text style={{ color: '#FFFFFF', fontSize: 15, marginLeft: 10 }}>Par {item.creator_name} • {item.titles.length} titres</Text>
+                    </TouchableOpacity>
+                }
+                refreshing={this.state.refresh}
+                onRefresh={this._Onref}
+            />
+        )
     }
     componentDidUpdate() {
         if (this.props.navigation.state.params !== undefined && this.props.navigation.state.params.need_update == 1) {
@@ -63,15 +64,26 @@ class UserPlaylist extends React.Component {
             this.props.navigation.state.params.need_update = 0
         }
     }
+
+    componentWillUnmount() {
+        this._isMount = false
+    }
+
     async componentDidMount() {
+        this._isMount = true
         this.setState({ is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         getUserPlaylist(user).then((p) => {
-            this.setState({ user, playlist: p, is_load: false })
+            if (this._isMount === true) {
+                this.setState({ user, playlist: p, is_load: false })
+            }
         })
+            .catch(() => {
+                this._isMount = false
+            })
 
     }
     render() {
@@ -101,7 +113,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     loading_container: {
-        zIndex : 1,
+        zIndex: 1,
         position: 'absolute',
         backgroundColor: '#191414',
         left: 0,

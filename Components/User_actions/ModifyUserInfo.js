@@ -15,7 +15,7 @@ class ModifUser extends React.Component {
             public_priv_friends: true,
             public_priv_public: true,
             is_load: true,
-            new_pseudo: '',
+            // new_pseudo: '',
             new_email: '',
             jazz: false,
             electro: false,
@@ -42,7 +42,7 @@ class ModifUser extends React.Component {
             const credential = await firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
             const user = await firebase.auth().currentUser
             if (user === null) {
-                this.props.navigation.navigate('Login')
+                this.props.navigation.navigate('Signup')
             }
             user.linkWithCredential(credential)
                 .then(async (res) => {
@@ -117,14 +117,14 @@ class ModifUser extends React.Component {
     async _updateUserInfos() {
         var change = 0;
         this.setState({ is_load: true })
-        if ((this.state.new_pseudo !== this.state.user.displayName)) {
-            if (this.state.new_pseudo.length > 0) {
-                await this.state.user.updateProfile({
-                    displayName: this.state.new_pseudo
-                })
-                    .then(() => { change = 1 })
-            }
-        }
+        // if ((this.state.new_pseudo !== this.state.user.displayName)) {
+        //     if (this.state.new_pseudo.length > 0) {
+        //         await this.state.user.updateProfile({
+        //             displayName: this.state.new_pseudo
+        //         })
+        //             .then(() => { change = 1 })
+        //     }
+        // }
         await firebase.firestore().collection('users').doc(this.props.navigation.state.params.user.uid).update({
             pref_music: this.state.res,
             accessibility: {
@@ -147,7 +147,7 @@ class ModifUser extends React.Component {
                             title="Modifier Compte"
                         />
                     </Appbar.Header>
-                    <Text style={styles.titre}>Changer de Pseudo : </Text>
+                    {/* <Text style={styles.titre}>Changer de Pseudo : </Text>
                     <TextInput
                         mode='flat'
                         theme={{ colors: { background: '#FFFFFF', primary: '#FFFFFF' } }}
@@ -156,7 +156,7 @@ class ModifUser extends React.Component {
                         style={styles.textInput}
                         onChangeText={(text) => {
                             this.setState({ displayName: text, error: false })
-                        }} />
+                        }} /> */}
                     <View style={{ flexDirection: 'row' }}>
 
                         <Text style={{ color: '#FFFFFF', fontSize: 20, padding: 5 }}>Rendre votre profil visible à vos amis : </Text>

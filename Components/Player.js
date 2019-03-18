@@ -39,7 +39,7 @@ class Player extends React.Component {
             next_track: undefined,
             player_state: '',
             visible: true,
-            pause: true,
+            pause: false,
         }
 
     }

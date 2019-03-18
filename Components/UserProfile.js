@@ -33,14 +33,14 @@ class UserProfile extends React.Component {
 
     async componentDidMount() {
         this.setState({ is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
             try {
                 await GoogleSignin.revokeAccess();
                 await GoogleSignin.signOut();
             }
             catch{ }
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         this.setState({ user, is_load: false })
     }
@@ -52,6 +52,8 @@ class UserProfile extends React.Component {
         }
 
     }
+
+
     render() {
         return (
 
@@ -111,8 +113,9 @@ class UserProfile extends React.Component {
                                 await GoogleSignin.signOut();
                             }
                             catch{}
-                            this.props.navigation.navigate('Login')
                         })
+                        this.props.navigation.navigate('Signup')
+
                     }}
                     underlayColor='#fff'
                     style={styles.button}>

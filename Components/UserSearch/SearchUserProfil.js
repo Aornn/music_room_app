@@ -92,9 +92,9 @@ class Search extends React.Component {
         )
     }
     async componentDidMount() {
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         let targetUid = this.props.navigation.state.params.id
         const currentUser = await getUserByUid(user, user._user.uid)

@@ -7,25 +7,30 @@ import { Appbar } from 'react-native-paper';
 class Playlist extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            user: {},
-            token: '',
-            playlist: [],
-            refresh: false,
-            is_load: false
-        }
+        this._isMount = false,
+            this.state = {
+                user: {},
+                token: '',
+                playlist: [],
+                refresh: false,
+                is_load: false,
+            }
 
     }
-
     _Onref = async () => {
         this.setState({ refresh: true, is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         getAllPublicPlaylist(user).then((p) => {
-            this.setState({ user, playlist: p, refresh: false, is_load: false })
+            if (this._isMount === true) {
+                this.setState({ user, playlist: p, refresh: false, is_load: false })
+            }
         })
+            .catch(() => {
+                this._isMount = false
+            })
     }
 
     _displayPlaylist() {
@@ -55,25 +60,27 @@ class Playlist extends React.Component {
             )
         }
     }
+    componentWillUnmount() {
+        this._isMount = false
+    }
+
     async componentDidMount() {
+        this._isMount = true
         this.setState({ is_load: true })
-        var user = firebase.auth().currentUser
+        var user = firebase.auth().currentUser ? firebase.auth().currentUser : null //var user = firebase.auth().currentUser
         if (user === null) {
-            this.props.navigation.navigate('Login')
+            this.props.navigation.navigate('Signup')
         }
         getAllPublicPlaylist(user)
             .then((p) => {
-                this.setState({ user, playlist: p, is_load: false })
+                if (this._isMount === true) {
+                    console.log('if playlist')
+                    this.setState({ user, playlist: p, is_load: false })
+                }
             })
             .catch(() => {
-                firebase.auth().signOut().then(async () => {
-                    try {
-                        await GoogleSignin.revokeAccess();
-                        await GoogleSignin.signOut();
-                    }
-                    catch{ }
-                    this.props.navigation.navigate('Login')
-                })
+                this._isMount = false
+                console.log('catch')
             })
     }
     render() {
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
 
     },
     loading_container: {
-        zIndex : 1,
+        zIndex: 1,
         position: 'absolute',
         backgroundColor: '#191414',
         left: 0,
