@@ -1,4 +1,4 @@
-# music_room_app
+# Music Room 42
 
 Création d’une solution mobile complète autour de la musique et de
 l’expérience utilisateur. Ce sujet a été réalisé en collaboration avec Deezer.
