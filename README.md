@@ -2,6 +2,7 @@
 
 Création d’une solution mobile complète autour de la musique et de
 l’expérience utilisateur. Ce sujet a été réalisé en collaboration avec Deezer.
+Nous avons utilisé React-Native pour le front et firebase pour notre back.
 
 # Screenshot
 
